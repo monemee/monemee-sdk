@@ -1,20 +1,20 @@
-# Vorlage: Express + React mit Monemee
+# Template: Express and React app with a Monemee paywall
 
-Eine kleine, lauffähige App mit Login, Pro-Bereich, Kauf, Testkauf und Freischaltung nach dem Kauf. Kopieren, Produkt verbinden, fertig.
+A small, runnable app with login, a Pro area, checkout, test purchases and unlocking after payment. Copy it, connect your product, done.
 
 ```bash
-npx degit monemee/monemee-dev/templates/express-react meine-app
-cd meine-app
+npx degit monemee/monemee-sdk/templates/express-react my-app
+cd my-app
 npm install
-npx monemee init --skip-install     # Login, Produkt, Test-Secret → server/.env
+npx monemee init --skip-install     # login, product, test secret -> server/.env
 npm run dev                         # http://localhost:5173
 ```
 
-Dann im Browser einloggen (Demo-Login mit beliebigem Namen), „Testkauf (ohne Geld)“ klicken, und der Pro-Bereich ist frei.
+Log in with any name (demo login), click "Test purchase (no payment)" and the Pro area unlocks.
 
-**Wo was passiert:**
+**Where things happen**
 
-- `server/index.js`: Monemee-Einbindung in der richtigen Reihenfolge, geschützte Route `/api/pro`
-- `client/src/App.jsx`: Paywall mit `AccessGate`, `BuyButton`, `LicenseForm`
+- `server/index.js`: the Monemee setup in the right order and the protected route `/api/pro`
+- `client/src/App.jsx`: the paywall with `AccessGate`, `BuyButton` and `LicenseForm`
 
-Der Demo-Login (Cookie mit Namen) ist nur zum Ausprobieren gedacht. Ersetze ihn durch deinen echten Login und passe `getRef` an.
+The demo login (a cookie with your name) is only for trying things out. Replace it with your real login and adjust `getRef`.

@@ -1,15 +1,43 @@
 {
   "name": "monemee",
   "version": "0.1.0",
-  "description": "Verkaufe deine App über Monemee – ein Befehl richtet Login, Produkt, Secrets und Code ein.",
+  "description": "Set up selling your app in one command: checkout, unlock after purchase, license keys and access checks with Monemee.",
   "type": "module",
-  "bin": { "monemee": "bin/monemee.js" },
-  "files": ["bin", "src", "README.md"],
+  "bin": {
+    "monemee": "bin/monemee.js"
+  },
+  "files": [
+    "bin",
+    "src",
+    "README.md"
+  ],
   "scripts": {
     "test": "node --test --test-timeout=20000 \"test/*.test.js\""
   },
-  "engines": { "node": ">=18.17" },
-  "keywords": ["monemee", "cli", "sell", "license", "paywall"],
+  "engines": {
+    "node": ">=18.17"
+  },
+  "keywords": [
+    "monemee",
+    "cli",
+    "sell-software",
+    "monetization",
+    "paywall",
+    "license-key",
+    "checkout",
+    "saas",
+    "indie-hacker",
+    "stripe"
+  ],
   "license": "MIT",
-  "repository": { "type": "git", "url": "https://github.com/monemee/monemee-dev", "directory": "packages/cli" }
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/monemee/monemee-sdk",
+    "directory": "packages/cli"
+  },
+  "homepage": "https://dev.monemee.com",
+  "bugs": {
+    "url": "https://github.com/monemee/monemee-sdk/issues"
+  },
+  "author": "Monemee (https://monemee.com)"
 }

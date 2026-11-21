@@ -7,15 +7,15 @@ const monemee = require('@monemee/node')({
 });
 
 const app = express();
-app.use(monemee.webhook());                                   // vor express.json()
+app.use(monemee.webhook());                                   // before express.json()
 app.use(express.json());
 app.use(session({ secret: process.env.SESSION_SECRET || 'dev', resave: false, saveUninitialized: false }));
-app.use(monemee.routes());                                    // nach der Session
+app.use(monemee.routes());                                    // after the session
 
 app.get('/login', (req, res) => { req.session.userId = 'demo'; res.redirect(req.query.next || '/'); });
 app.get('/', async (req, res) => {
   const pro = req.session.userId && (await monemee.hasAccess(req.session.userId));
-  res.send(pro ? '<h1>Pro ✓</h1>' : '<a href="/monemee/buy">Pro kaufen</a> · <a href="/monemee/test-buy">Testkauf</a>');
+  res.send(pro ? '<h1>Pro</h1>' : '<a href="/monemee/buy">Buy Pro</a> · <a href="/monemee/test-buy">Test purchase</a>');
 });
 app.get('/api/pro', monemee.requireAccess(), (req, res) => res.json({ plan: req.monemee.plan }));
 

@@ -1,7 +1,7 @@
 {
-  "name": "monemee-dev",
+  "name": "monemee-sdk",
   "private": true,
-  "description": "Monemee Dev-Kit: verkaufe deine App mit einem Befehl",
+  "description": "Monemee SDK: sell your app with license keys, a paywall and checkout",
   "workspaces": [
     "packages/*",
     "action"

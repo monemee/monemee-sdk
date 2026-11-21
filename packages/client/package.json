@@ -1,16 +1,50 @@
 {
   "name": "@monemee/client",
   "version": "0.1.0",
-  "description": "Lizenzschlüssel für Download-Software (Electron, Tauri, Browser-Erweiterungen, CLIs) – aktivieren, prüfen, offline mit signierten Antworten.",
+  "description": "License key validation for Electron, Tauri, browser extensions and Node CLIs with offline support via Ed25519-signed responses.",
   "type": "module",
   "main": "src/index.js",
   "types": "index.d.ts",
-  "exports": { ".": { "types": "./index.d.ts", "default": "./src/index.js" } },
-  "files": ["src", "index.d.ts", "README.md"],
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./src/index.js"
+    }
+  },
+  "files": [
+    "src",
+    "index.d.ts",
+    "README.md"
+  ],
   "sideEffects": false,
-  "scripts": { "test": "node --test --test-timeout=15000 \"test/*.test.js\"" },
-  "engines": { "node": ">=20" },
-  "keywords": ["monemee", "license", "license-key", "electron", "tauri", "offline"],
+  "scripts": {
+    "test": "node --test --test-timeout=15000 \"test/*.test.js\""
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "keywords": [
+    "monemee",
+    "license-key",
+    "license-validation",
+    "software-licensing",
+    "licensing",
+    "electron",
+    "tauri",
+    "chrome-extension",
+    "offline",
+    "ed25519",
+    "activation"
+  ],
   "license": "MIT",
-  "repository": { "type": "git", "url": "https://github.com/monemee/monemee-dev", "directory": "packages/client" }
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/monemee/monemee-sdk",
+    "directory": "packages/client"
+  },
+  "homepage": "https://dev.monemee.com",
+  "bugs": {
+    "url": "https://github.com/monemee/monemee-sdk/issues"
+  },
+  "author": "Monemee (https://monemee.com)"
 }

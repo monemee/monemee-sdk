@@ -1,7 +1,7 @@
-// npm i @monemee/client   ·   im Service Worker oder Popup (gebündelt)
+// npm i @monemee/client   ·   service worker or popup (bundled)
 import { createLicense } from '@monemee/client';
 
-// chrome.storage statt localStorage (Service Worker haben keins)
+// chrome.storage instead of localStorage (service workers have none)
 const storage = {
   get: async (k) => (await chrome.storage.local.get(k))[k] ?? null,
   set: (k, v) => chrome.storage.local.set({ [k]: v }),

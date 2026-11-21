@@ -1,12 +1,14 @@
-# Beispiele
+# Examples
 
-| Ordner | Fall | Paket |
+Short, focused examples for each way of selling software with Monemee.
+
+| Folder | Use case | Package |
 |---|---|---|
-| [express-minimal](express-minimal) | Web-App, Express | `@monemee/node` |
-| [nextjs](nextjs) | Web-App, Next.js App Router | `@monemee/node`, `@monemee/react` |
-| [flask](flask) | Web-App, Python | `monemee` |
-| [electron](electron) | Desktop | `@monemee/client` |
-| [chrome-extension](chrome-extension) | Browser-Erweiterung | `@monemee/client` |
-| [python-cli](python-cli) | Kommandozeile | `monemee` |
+| [express-minimal](express-minimal) | Paywall in an Express web app | `@monemee/node` |
+| [nextjs](nextjs) | Paywall in a Next.js App Router app | `@monemee/node`, `@monemee/react` |
+| [flask](flask) | Paywall in a Flask web app | `monemee` (Python) |
+| [electron](electron) | License key check in an Electron desktop app | `@monemee/client` |
+| [chrome-extension](chrome-extension) | License key check in a browser extension | `@monemee/client` |
+| [python-cli](python-cli) | License key check in a Python command-line tool | `monemee` (Python) |
 
-Eine komplette, lauffähige App mit Login gibt es unter [`templates/express-react`](../templates/express-react).
+A complete, runnable app with login is in [templates/express-react](../templates/express-react).

@@ -1,5 +1,7 @@
-# Skills für KI-Assistenten
+# Skills for AI coding assistants
 
-- **Claude Code:** Ordner `claude-code/monemee-sell` nach `.claude/skills/` in dein Projekt (oder `~/.claude/skills/`) kopieren. Dann reicht: „Verkauf diese App über Monemee.“
-- **Cursor:** `cursor/monemee.mdc` nach `.cursor/rules/` kopieren.
-- **Alle anderen:** [`AGENTS.md`](../AGENTS.md) ins Projekt legen. Die meisten Assistenten lesen die Datei automatisch.
+Let your assistant set up Monemee for you.
+
+- **Claude Code:** copy `claude-code/monemee-sell` to `.claude/skills/` in your project (or `~/.claude/skills/`). Then say: "Sell this app with Monemee."
+- **Cursor:** copy `cursor/monemee.mdc` to `.cursor/rules/`.
+- **Any other assistant:** put [`AGENTS.md`](../AGENTS.md) into your project. Most assistants read it automatically.

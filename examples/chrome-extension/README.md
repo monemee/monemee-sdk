@@ -1,9 +1,9 @@
-# Browser-Erweiterung
+# Browser extension
 
-`license.js` nutzt `chrome.storage` als Speicher. Im `manifest.json` brauchst du:
+`license.js` uses `chrome.storage` for persistence. Your `manifest.json` needs:
 
 ```json
 { "permissions": ["storage"], "host_permissions": ["https://monemee.com/*"] }
 ```
 
-Popup: Schlüssel-Feld → `license.activate(key)`. Danach überall `await isPro()`.
+Popup: a key field that calls `license.activate(key)`. After that, use `await isPro()` anywhere.

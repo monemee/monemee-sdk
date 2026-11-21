@@ -1,6 +1,8 @@
 # @monemee/react
 
-Freischalten im Frontend. Passt zu [@monemee/node](../node) auf deinem Server, ein Secret im Browser gibt es nicht.
+React components for a paywall backed by Monemee: show content only to buyers, render a buy button and let customers enter a license key. Pairs with [@monemee/node](../node) on your server, and no secret ever reaches the browser.
+
+[Monemee SDK](https://github.com/monemee/monemee-sdk) · [Deutsch](https://github.com/monemee/monemee-sdk/blob/main/README.de.md) · [Documentation](https://dev.monemee.com)
 
 ```bash
 npm install @monemee/react
@@ -12,7 +14,7 @@ import { MonemeeProvider, AccessGate, BuyButton, LicenseForm } from '@monemee/re
 export default function App() {
   return (
     <MonemeeProvider>
-      <AccessGate fallback={<BuyButton>Pro freischalten – 19 €</BuyButton>}>
+      <AccessGate fallback={<BuyButton>Unlock Pro</BuyButton>}>
         <ProFeature />
       </AccessGate>
     </MonemeeProvider>
@@ -20,17 +22,15 @@ export default function App() {
 }
 ```
 
-## Login per Token (Firebase, Supabase, Auth0 …)
+## Token-based login (Firebase, Supabase, Auth0)
 
-Wenn deine App das Login-Token als Header schickt statt per Cookie:
+If your app sends the login token as a header instead of a cookie:
 
 ```jsx
 <MonemeeProvider getHeaders={async () => ({ Authorization: `Bearer ${await auth.currentUser.getIdToken()}` })}>
 ```
 
-Setze die **Rücksprung-URL** in Monemee dann auf eine Seite deiner App (z. B. `https://deine-app.de/pro`). Der Provider löst `?monemee_claim=…` beim Laden selbst ein und entfernt ihn aus der Adresszeile.
-
-Bei Cookie-Login zeigt die Rücksprung-URL auf `https://deine-app.de/monemee/return`. Das übernimmt dann der Server.
+Set the return URL in Monemee to a page of your app, for example `https://your-app.com/pro`. The provider redeems `?monemee_claim=...` on load and removes it from the address bar. With cookie-based login, point the return URL at `https://your-app.com/monemee/return` and let the server handle it.
 
 ## Hook
 
@@ -38,8 +38,19 @@ Bei Cookie-Login zeigt die Rücksprung-URL auf `https://deine-app.de/monemee/ret
 const { loading, access, plan, expiresAt, buy, testBuy, unlock, refresh } = useAccess();
 ```
 
-- `buy()` öffnet die Bezahlseite. Der Kauf ist dann schon mit dem eingeloggten Nutzer verknüpft.
-- `testBuy()` startet nur im Testmodus einen Testkauf ohne Geld, mit dem echten Ablauf.
-- `<LicenseForm />` ist für Käufer, die ohne Rücksprung gekauft haben (der Schlüssel steht in ihrer Mail).
+- `buy()` opens the checkout with the logged-in user attached.
+- `testBuy()` runs a free test purchase through the real flow (test mode only).
+- `<LicenseForm />` lets customers who bought without the return flow paste the key from their purchase email.
 
-MIT-Lizenz
+## Components
+
+| Component | Props |
+|---|---|
+| `MonemeeProvider` | `basePath`, `getHeaders`, `handleReturn`, `onUnlocked`, `navigate`, `fetch` |
+| `AccessGate` | `fallback`, `loading` |
+| `BuyButton` | any anchor props |
+| `LicenseForm` | `label`, `submitLabel`, `onUnlocked`, `className` |
+
+No build step, no styling opinions, TypeScript definitions included. Works with React 17 and newer.
+
+MIT License

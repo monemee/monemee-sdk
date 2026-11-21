@@ -5,19 +5,31 @@ build-backend = "hatchling.build"
 [project]
 name = "monemee"
 version = "0.1.0"
-description = "Verkaufe deine App über Monemee: Lizenzschlüssel für Python-Tools und Zugang für Web-Apps (Flask, FastAPI, Django)."
+description = "License key validation with offline support for Python apps, plus paywall access checks for Flask, FastAPI and Django, powered by Monemee."
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.9"
 dependencies = []
-keywords = ["monemee", "license", "license-key", "paywall", "flask", "fastapi"]
+keywords = ["monemee", "license key", "license validation", "software licensing", "paywall", "flask", "fastapi", "django", "offline licensing", "ed25519"]
+authors = [{ name = "Monemee", email = "info@monemee.com" }]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Topic :: Software Development :: Libraries",
+  "Topic :: Office/Business :: Financial :: Point-Of-Sale",
+]
 
 [project.optional-dependencies]
 # Offline-Prüfung signierter Lizenzantworten (Ed25519)
 offline = ["cryptography>=41"]
 
 [project.urls]
-Homepage = "https://github.com/monemee/monemee-dev/tree/main/packages/python"
+Homepage = "https://dev.monemee.com"
+Source = "https://github.com/monemee/monemee-sdk/tree/main/packages/python"
+Issues = "https://github.com/monemee/monemee-sdk/issues"
+Changelog = "https://github.com/monemee/monemee-sdk/blob/main/CHANGELOG.md"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/monemee"]

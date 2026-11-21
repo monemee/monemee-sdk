@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="{{ page.lang | default: site.lang }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  {% seo %}
+  {% if page.alternate %}<link rel="alternate" hreflang="{{ page.alternate_lang }}" href="{{ site.url }}{{ page.alternate }}">
+  <link rel="alternate" hreflang="{{ page.lang | default: site.lang }}" href="{{ site.url }}{{ page.url }}">{% endif %}
+  <link rel="icon" href="{{ '/assets/logo.svg' | relative_url }}" type="image/svg+xml">
+  <link rel="preload" href="{{ '/assets/fonts/schibsted-grotesk-var-latin.woff2' | relative_url }}" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="{{ '/assets/style.css' | relative_url }}">
+  {% if page.faq %}
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{% for q in page.faq %}{"@type":"Question","name":{{ q.q | jsonify }},"acceptedAnswer":{"@type":"Answer","text":{{ q.a | jsonify }}}}{% unless forloop.last %},{% endunless %}{% endfor %}]}
+  </script>
+  {% endif %}
+  {% if page.url == "/" %}
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareSourceCode","name":"Monemee SDK","description":{{ site.description | jsonify }},"codeRepository":"https://github.com/monemee/monemee-sdk","programmingLanguage":["JavaScript","TypeScript","Python"],"license":"https://opensource.org/licenses/MIT","author":{"@type":"Organization","name":"Monemee","url":"https://monemee.com"}}
+  </script>
+  {% endif %}
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="{{ '/' | relative_url }}"><img src="{{ '/assets/logo.svg' | relative_url }}" alt="" width="28" height="28"><span>Monemee SDK</span></a>
+    <nav aria-label="Main">
+      {% if page.lang == "de" %}
+      <a href="{{ '/de/' | relative_url }}">Start</a>
+      <a href="{{ '/' | relative_url }}" hreflang="en">English</a>
+      {% else %}
+      <a href="{{ '/web-apps/' | relative_url }}">Web apps</a>
+      <a href="{{ '/license-keys/' | relative_url }}">License keys</a>
+      <a href="{{ '/github-action/' | relative_url }}">Releases</a>
+      <a href="{{ '/cli/' | relative_url }}">CLI</a>
+      <a href="{{ '/faq/' | relative_url }}">FAQ</a>
+      <a href="{{ '/de/' | relative_url }}" hreflang="de">Deutsch</a>
+      {% endif %}
+      <a class="gh" href="https://github.com/monemee/monemee-sdk">GitHub</a>
+    </nav>
+  </header>
+  <main id="content">
+    {{ content }}
+    {% if page.updated %}<p class="updated">Last updated: <time datetime="{{ page.updated }}">{{ page.updated | date: "%B %-d, %Y" }}</time></p>{% endif %}
+  </main>
+  <footer class="site-footer">
+    <p>MIT licensed · <a href="https://github.com/monemee/monemee-sdk">Source on GitHub</a> · <a href="https://monemee.com">monemee.com</a> · <a href="{{ '/security/' | relative_url }}">Security</a></p>
+  </footer>
+</body>
+</html>

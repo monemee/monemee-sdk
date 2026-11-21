@@ -5,16 +5,16 @@ const createMonemee = require('@monemee/node');
 
 const app = express();
 
-// Monemee: Kauf, Freischaltung nach dem Kauf, Zugangsprüfung
+// Monemee: checkout, unlock after purchase, access checks
 const monemee = createMonemee({
-  getRef: (req) => req.user?.id,                    // ← Nutzer-ID aus deinem Login
+  getRef: (req) => req.user?.id,                    // user ID from your login
   loginUrl: (back) => `/?login=1&next=${encodeURIComponent(back)}`
 });
-app.use(monemee.webhook());                         // vor express.json(): braucht den rohen Body
+app.use(monemee.webhook());                         // before express.json(): needs the raw body
 
 app.use(express.json());
 
-// --- Demo-Login: Cookie mit Namen. In echt: Session, Passport, Firebase … ---
+// --- Demo login: a cookie with a name. Use your real login (session, Passport, Firebase ...) ---
 app.use((req, res, next) => {
   const m = /(?:^|;\s*)demo_user=([\w-]{1,40})/.exec(req.headers.cookie || '');
   req.user = m ? { id: m[1] } : null;
@@ -22,7 +22,7 @@ app.use((req, res, next) => {
 });
 app.post('/api/login', (req, res) => {
   const name = String(req.body?.name || '').replace(/[^\w-]/g, '').slice(0, 40);
-  if (!name) return res.status(400).json({ error: 'name fehlt' });
+  if (!name) return res.status(400).json({ error: 'name is required' });
   res.setHeader('Set-Cookie', `demo_user=${name}; Path=/; HttpOnly; SameSite=Lax`);
   res.json({ id: name });
 });
@@ -31,19 +31,19 @@ app.post('/api/logout', (req, res) => {
   res.json({ ok: true });
 });
 app.get('/api/me', (req, res) => res.json({ user: req.user }));
-// --- Ende Demo-Login ---
+// --- End of demo login ---
 
-app.use(monemee.routes());                          // nach dem Login: /monemee/buy, /return, /access …
+app.use(monemee.routes());                          // after the login: /monemee/buy, /return, /access ...
 
-// Bezahlter Inhalt – nur mit Kauf
+// Paid content, buyers only
 app.get('/api/pro', monemee.requireAccess(), (req, res) => {
-  res.json({ message: 'Willkommen im Pro-Bereich!', plan: req.monemee.plan, test: Boolean(req.monemee.test) });
+  res.json({ message: 'Welcome to the Pro area!', plan: req.monemee.plan, test: Boolean(req.monemee.test) });
 });
 
-// Produktion: gebautes Frontend ausliefern
+// Production: serve the built frontend
 const dist = path.join(__dirname, '..', 'client', 'dist');
 app.use(express.static(dist));
 app.get(/^\/(?!api|monemee).*/, (req, res, next) => res.sendFile(path.join(dist, 'index.html'), (err) => err && next()));
 
 const port = process.env.PORT || 3001;
-app.listen(port, () => console.log(`Server: http://localhost:${port} (${monemee.mode === 'test' ? 'Testmodus' : 'LIVE'})`));
+app.listen(port, () => console.log(`Server: http://localhost:${port} (${monemee.mode === 'test' ? 'test mode' : 'LIVE'})`));

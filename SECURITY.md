@@ -1,19 +1,23 @@
-# Sicherheit
+# Security
 
-## Wie die Pakete dich schützen
+## How the SDK protects you
 
-- **App-Secret (`mmapp_…`)** liegt nur auf deinem Server. Es darf ausschließlich Zugang prüfen und freischalten, und zwar für genau ein Produkt. Test-Secrets sehen nur Testkäufe.
-- **Rücksprung-Token (`mmc_…`)** sind 30 Minuten gültig und nur einmal einlösbar. Eingelöst werden sie nur mit deinem App-Secret.
-- **Bindung:** Eine eingelöste Lizenz gehört genau einem Nutzer deiner App. Wer einen Link oder Schlüssel weitergibt, schaltet damit kein zweites Konto frei.
-- **Webhooks** sind per HMAC-SHA256 signiert (`Monemee-Signature`), Anfragen älter als 5 Minuten werden abgelehnt.
-- **Download-Software** prüft Ed25519-signierte Lizenzantworten. Der öffentliche Schlüssel steckt im Paket und liegt unter `https://monemee.com/.well-known/monemee-license-keys.json`.
-- **Monemee nicht erreichbar:** `requireAccess` antwortet 503 und schaltet nicht still frei.
+- **App secret (`mmapp_...`)** stays on your server. It can only check and unlock access, for exactly one product. Test secrets only see test purchases.
+- **Return tokens (`mmc_...`)** are valid for 30 minutes and can be redeemed once, only with your app secret.
+- **Binding:** a redeemed license belongs to exactly one user of your app. Forwarding a link or key does not unlock a second account.
+- **Webhooks** are signed with HMAC-SHA256 (`Monemee-Signature`). Requests older than five minutes are rejected.
+- **Downloadable software** verifies Ed25519-signed license responses. The public key ships with the packages and is published at `https://monemee.com/.well-known/monemee-license-keys.json`.
+- **Monemee unreachable:** `requireAccess` answers 503 and never grants access silently.
 
-## Was du tun musst
+## What you need to do
 
-- `.env` nie committen (`npx monemee init` trägt sie in `.gitignore` ein).
-- Secret geleakt? Im Dashboard unter *Lizenzschlüssel → App-Anbindung* ein neues anlegen, ausrollen, das alte widerrufen.
+- Never commit `.env` (`npx monemee init` adds it to `.gitignore`).
+- Leaked secret? Create a new one in the dashboard under *License keys > App connection*, deploy it, then revoke the old one.
 
-## Lücke melden
+## Supported versions
 
-Bitte nicht als öffentliches Issue, sondern an **info@monemee.com** (Betreff „Security“). Wir antworten innerhalb von 72 Stunden.
+Security fixes are released for the latest minor version of each package.
+
+## Reporting a vulnerability
+
+Please do not open a public issue. Email **info@monemee.com** with the subject "Security". We respond within 72 hours.

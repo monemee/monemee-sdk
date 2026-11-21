@@ -1,35 +1,41 @@
 # monemee (CLI)
 
-Verkaufe deine App über Monemee. Ein Befehl richtet alles ein.
+Sell your app through Monemee. One command sets up checkout, unlocking after purchase and access checks in your project.
+
+[Monemee SDK](https://github.com/monemee/monemee-sdk) · [Deutsch](https://github.com/monemee/monemee-sdk/blob/main/README.de.md) · [Documentation](https://dev.monemee.com)
 
 ```bash
 npx monemee init
 ```
 
-1. erkennt dein Projekt (Express, Next.js, React, Python …) und deinen Login (Cookie oder Token),
-2. loggt dich im Browser bei Monemee ein (kein API-Key zum Kopieren),
-3. legt dein Produkt an oder nimmt ein bestehendes,
-4. schreibt `MONEMEE_APP_SECRET` (Testmodus) und `MONEMEE_PRODUCT_ID` in die `.env` und trägt sie in `.gitignore` ein,
-5. bindet Monemee in deinen Code ein: Express-Server, Next.js-Route, React-Paywall.
+`init` does the following:
 
-Danach:
+1. detects your project (Express, Next.js, React, Python and more) and how users log in (cookie or token),
+2. logs you in to Monemee through the browser, so there is no API key to copy,
+3. creates your product or picks an existing one,
+4. writes `MONEMEE_APP_SECRET` (test mode) and `MONEMEE_PRODUCT_ID` to `.env` and adds `.env` to `.gitignore`,
+5. wires Monemee into your code: Express server, Next.js route, React paywall.
+
+Then:
 
 ```bash
-npx monemee test-buy     # Testkauf ohne Geld, echter Ablauf bis zur Freischaltung
-npx monemee live         # Rücksprung-URL, Live-Secret, Webhook für dein Produktivsystem
-npx monemee doctor       # prüft die Einrichtung
+npx monemee test-buy     # free test purchase through the real flow
+npx monemee live         # return URL, live secret and webhook for production
+npx monemee doctor       # checks your setup
 ```
 
 | Option | |
 |---|---|
-| `--yes` | Fragen mit dem Standardwert beantworten (CI, KI-Assistenten) |
-| `--product <id>` | bestehendes Produkt verwenden |
-| `--title`, `--price` | neues Produkt ohne Rückfragen |
-| `--url <https://…>` | (`live`) Adresse deiner Live-App |
-| `--ref <id>` | (`test-buy`) Testkauf für eine bestimmte Nutzer-ID |
-| `--skip-install` | Pakete nicht installieren, nur Befehl anzeigen |
-| `--base-url <url>` | andere Monemee-Instanz, z. B. Staging |
+| `--yes` | Accept defaults without prompting (CI, AI assistants) |
+| `--product <id>` | Use an existing product |
+| `--title`, `--price` | Create a new product without prompts |
+| `--url <https://...>` | (`live`) Address of your production app |
+| `--ref <id>` | (`test-buy`) Test purchase for a specific user ID |
+| `--skip-install` | Print the install command instead of running it |
+| `--base-url <url>` | Use another Monemee instance, for example staging |
 
-Der Login liegt unter `~/.config/monemee/credentials.json` (nur für dich lesbar). `npx monemee logout` löscht ihn. Widerrufen kannst du ihn in Monemee unter *Einstellungen → Verbundene Apps*.
+Your login is stored in `~/.config/monemee/credentials.json` with permissions limited to your user. `npx monemee logout` deletes it, and you can revoke it in Monemee under *Settings > Connected apps*.
 
-MIT-Lizenz
+Requires Node.js 18.17 or newer. No dependencies.
+
+MIT License

@@ -5,20 +5,20 @@ export default function App() {
   const [user, setUser] = useState(undefined);
   useEffect(() => { fetch('/api/me').then((r) => r.json()).then((d) => setUser(d.user)); }, []);
 
-  if (user === undefined) return <main><p>Lädt …</p></main>;
+  if (user === undefined) return <main><p>Loading…</p></main>;
   if (!user) return <main><Login onLogin={setUser} /></main>;
 
   return (
     <main>
       <header>
-        <span>Hallo {user.id}</span>
-        <button type="button" onClick={() => fetch('/api/logout', { method: 'POST' }).then(() => setUser(null))}>Abmelden</button>
+        <span>Hi {user.id}</span>
+        <button type="button" onClick={() => fetch('/api/logout', { method: 'POST' }).then(() => setUser(null))}>Log out</button>
       </header>
-      <h1>Meine App</h1>
-      <p>Das hier ist kostenlos.</p>
+      <h1>My App</h1>
+      <p>This part is free.</p>
 
       <MonemeeProvider>
-        <AccessGate loading={<p>Prüfe Zugang …</p>} fallback={<Paywall />}>
+        <AccessGate loading={<p>Checking access…</p>} fallback={<Paywall />}>
           <ProArea />
         </AccessGate>
       </MonemeeProvider>
@@ -30,13 +30,13 @@ function Paywall() {
   const { mode, testBuy } = useAccess();
   return (
     <section className="card">
-      <h2>Pro freischalten</h2>
-      <p>Alle Profi-Funktionen, einmal zahlen.</p>
-      <BuyButton className="primary">Jetzt kaufen</BuyButton>
-      {mode === 'test' && <button type="button" onClick={() => testBuy()}>Testkauf (ohne Geld)</button>}
+      <h2>Unlock Pro</h2>
+      <p>All pro features, pay once.</p>
+      <BuyButton className="primary">Buy now</BuyButton>
+      {mode === 'test' && <button type="button" onClick={() => testBuy()}>Test purchase (no payment)</button>}
       <details>
-        <summary>Schon gekauft? Lizenzschlüssel eingeben</summary>
-        <LicenseForm />
+        <summary>Already bought? Enter your license key</summary>
+        <LicenseForm label="License key" submitLabel="Unlock" />
       </details>
     </section>
   );
@@ -47,9 +47,9 @@ function ProArea() {
   useEffect(() => { fetch('/api/pro').then((r) => r.json()).then(setData); }, []);
   return (
     <section className="card">
-      <h2>Pro-Bereich</h2>
-      <p>{data ? data.message : 'Lädt …'}</p>
-      {data?.test && <p className="hint">Testkauf – im Live-Modus zahlt hier echtes Geld.</p>}
+      <h2>Pro area</h2>
+      <p>{data ? data.message : 'Loading…'}</p>
+      {data?.test && <p className="hint">Test purchase. In live mode this is a real payment.</p>}
     </section>
   );
 }
@@ -67,9 +67,9 @@ function Login({ onLogin }) {
   };
   return (
     <form className="card" onSubmit={submit}>
-      <h1>Demo-Login</h1>
+      <h1>Demo login</h1>
       <label>Name <input value={name} onChange={(e) => setName(e.target.value)} required autoFocus /></label>
-      <button className="primary" type="submit">Einloggen</button>
+      <button className="primary" type="submit">Log in</button>
     </form>
   );
 }

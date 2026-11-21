@@ -1,0 +1,28 @@
+title: Monemee SDK
+tagline: Sell your app with license keys, a paywall and checkout
+description: >-
+  Documentation for the Monemee SDK: add a paywall to Express, Next.js and React apps,
+  validate license keys in Electron, Tauri and Python with offline support, and ship
+  new versions from GitHub Releases.
+url: https://dev.monemee.com
+baseurl: ""
+lang: en
+logo: /assets/logo.png
+author: Monemee
+twitter:
+  card: summary_large_image
+social:
+  name: Monemee
+  links:
+    - https://github.com/monemee/monemee-sdk
+    - https://monemee.com
+defaults:
+  - scope: { path: "" }
+    values:
+      layout: default
+      image: /assets/social-preview.png
+plugins:
+  - jekyll-seo-tag
+  - jekyll-sitemap
+exclude:
+  - README.md

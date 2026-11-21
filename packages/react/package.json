@@ -1,20 +1,29 @@
 {
   "name": "@monemee/react",
   "version": "0.1.0",
-  "description": "Freischalten im Frontend: MonemeeProvider, useAccess, AccessGate, BuyButton, LicenseForm – passt zu @monemee/node.",
+  "description": "React paywall components for Monemee: AccessGate, BuyButton, LicenseForm and the useAccess hook.",
   "type": "module",
   "main": "src/index.js",
   "module": "src/index.js",
   "types": "index.d.ts",
   "exports": {
-    ".": { "types": "./index.d.ts", "default": "./src/index.js" }
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./src/index.js"
+    }
   },
-  "files": ["src", "index.d.ts", "README.md"],
+  "files": [
+    "src",
+    "index.d.ts",
+    "README.md"
+  ],
   "sideEffects": false,
   "scripts": {
     "test": "node --test --test-timeout=15000 \"test/*.test.js\""
   },
-  "peerDependencies": { "react": ">=17" },
+  "peerDependencies": {
+    "react": ">=17"
+  },
   "devDependencies": {
     "@testing-library/react": "^16.0.0",
     "@testing-library/dom": "^10.4.0",
@@ -23,7 +32,26 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
-  "keywords": ["monemee", "react", "paywall", "license", "sell"],
+  "keywords": [
+    "monemee",
+    "react",
+    "paywall",
+    "react-hooks",
+    "license-key",
+    "monetization",
+    "checkout",
+    "premium",
+    "access-control"
+  ],
   "license": "MIT",
-  "repository": { "type": "git", "url": "https://github.com/monemee/monemee-dev", "directory": "packages/react" }
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/monemee/monemee-sdk",
+    "directory": "packages/react"
+  },
+  "homepage": "https://dev.monemee.com",
+  "bugs": {
+    "url": "https://github.com/monemee/monemee-sdk/issues"
+  },
+  "author": "Monemee (https://monemee.com)"
 }

@@ -1,12 +1,14 @@
 # monemee (Python)
 
-Verkaufe deine Python-App über Monemee.
+Sell your Python app through Monemee: license key validation with offline support for CLIs and desktop tools, plus access checks for web apps built with Flask, FastAPI or Django. Standard library only; `cryptography` is optional for offline verification.
+
+[Monemee SDK](https://github.com/monemee/monemee-sdk) · [Deutsch](https://github.com/monemee/monemee-sdk/blob/main/README.de.md) · [Documentation](https://dev.monemee.com)
 
 ```bash
-pip install "monemee[offline]"    # [offline] = Offline-Prüfung signierter Antworten
+pip install "monemee[offline]"    # [offline] enables offline verification of signed responses
 ```
 
-## Download-Software (CLI, Desktop, Skripte)
+## License keys for CLIs and desktop apps
 
 ```python
 from monemee import License
@@ -14,22 +16,22 @@ from monemee import License
 lic = License(product_id=123)
 
 if not lic.stored_key:
-    result = lic.activate(input("Lizenzschlüssel: "))
+    result = lic.activate(input("License key: "))
     if not result.valid:
-        raise SystemExit(f"Ungültig: {result.reason}")
+        raise SystemExit(f"Invalid: {result.reason}")
 
-status = lic.check()          # online, ohne Netz gilt die letzte Prüfung bis grace_days (7)
+status = lic.check()          # online; offline the last check stays valid for grace_days (7)
 if status.valid:
     run_pro(plan=status.plan)
 ```
 
-Gespeichert wird in `~/.config/monemee-<id>/license.json` (Windows: `%APPDATA%`). `lic.deactivate()` gibt das Gerät frei.
+Data is stored in `~/.config/monemee-<id>/license.json` (`%APPDATA%` on Windows). `lic.deactivate()` frees the device slot.
 
-## Web-App mit Login (Flask, FastAPI, Django)
+## Web apps with login (Flask, FastAPI, Django)
 
 ```python
 from monemee import App
-monemee = App()                         # MONEMEE_APP_SECRET aus der Umgebung (npx monemee init)
+monemee = App()                         # reads MONEMEE_APP_SECRET (npx monemee init)
 
 # Flask
 @app.get("/pro")
@@ -38,13 +40,13 @@ def pro():
         return redirect(monemee.buy_url(current_user.id))
     return render_template("pro.html")
 
-# Rücksprung nach dem Kauf (Rücksprung-URL in Monemee: https://deine-app.de/monemee/return)
+# Return after purchase (set the return URL in Monemee to https://your-app.com/monemee/return)
 @app.get("/monemee/return")
 def monemee_return():
     result = monemee.unlock(current_user.id, claim=request.args["monemee_claim"])
-    return redirect("/pro" if result.access else f"/?fehler={result.reason}")
+    return redirect("/pro" if result.access else f"/?error={result.reason}")
 
-# Webhook (optional, Erstattungen sofort wirksam)
+# Webhook (optional, applies refunds instantly)
 @app.post("/monemee/webhook")
 def monemee_webhook():
     try:
@@ -54,8 +56,8 @@ def monemee_webhook():
     return "", 204
 ```
 
-Testkauf ohne Geld (nur mit `mmapp_test_…`): `redirect(monemee.test_buy_url(current_user.id, "http://localhost:5000/monemee/return"))`.
+Free test purchase (with a `mmapp_test_...` secret only): `redirect(monemee.test_buy_url(current_user.id, "http://localhost:5000/monemee/return"))`.
 
-Ohne Abhängigkeiten außer der Standardbibliothek. `cryptography` wird nur für die Offline-Prüfung gebraucht.
+Requires Python 3.9 or newer.
 
-MIT-Lizenz
+MIT License

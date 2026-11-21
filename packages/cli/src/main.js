@@ -43,7 +43,7 @@ ${bold('Optionen')}
   --ref <id>        (test-buy) Nutzer-ID für den Testkauf
   --base-url <url>  Andere Monemee-Instanz (z. B. https://staging.monemee.com)
 
-Doku: https://github.com/monemee/monemee-dev
+Doku: https://github.com/monemee/monemee-sdk
 `;
 
 function parseArgs(argv) {

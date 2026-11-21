@@ -1,6 +1,6 @@
 # Monemee Release (GitHub Action)
 
-Neue Version veröffentlichen, und deine Käufer haben sie: Die Action lädt die Datei hoch und ersetzt sie **im bestehenden Produkt**. Die Download-Links bisheriger Käufer bleiben gültig und liefern ab sofort die neue Version.
+Publish a new version of your app and your buyers have it. The action uploads a release file and replaces it inside your existing Monemee product. Download links that buyers already received keep working and deliver the new version.
 
 ```yaml
 # .github/workflows/monemee.yml
@@ -13,14 +13,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: npm ci && npm run build && cd dist && zip -r ../meine-app.zip .
-      - uses: monemee/monemee-dev/action@v1
+      - run: npm ci && npm run build && cd dist && zip -r ../my-app.zip .
+      - uses: monemee/monemee-sdk/action@v1
         with:
           api-key: ${{ secrets.MONEMEE_API_KEY }}
           product-id: 123
-          file: meine-app.zip
+          file: my-app.zip
 ```
 
-- **API-Key:** Monemee → Einstellungen → API-Keys. In GitHub unter *Settings → Secrets → Actions* als `MONEMEE_API_KEY` ablegen.
-- **Dateitypen:** `.exe`, `.msi`, `.sh`, `.dll` und Ähnliches nimmt Monemee aus Sicherheitsgründen nicht direkt an. Verpacke sie als `.zip`.
-- **Ausgaben:** `module-id`, `file-url`.
+| Input | Required | |
+|---|---|---|
+| `api-key` | yes | Monemee API key (`monemee_...`) from *Settings > API keys*. Store it as a repository secret. |
+| `product-id` | yes | Your Monemee product ID |
+| `file` | yes | Path to the file, for example `dist/my-app.zip` |
+| `base-url` | no | Only for testing against another Monemee instance |
+
+Outputs: `module-id`, `file-url`.
+
+For security reasons Monemee does not accept `.exe`, `.msi`, `.sh`, `.dll` and similar files directly. Package them as `.zip`.
+
+MIT License

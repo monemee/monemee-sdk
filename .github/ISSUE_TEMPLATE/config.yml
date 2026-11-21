@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Account, payouts or a specific purchase
+    url: https://monemee.com/hilfe
+    about: Use the support form in your Monemee dashboard. These questions cannot be answered in public issues.
+  - name: Security vulnerability
+    url: https://github.com/monemee/monemee-sdk/blob/main/SECURITY.md
+    about: Please report vulnerabilities privately.

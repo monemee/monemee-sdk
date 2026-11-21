@@ -1,6 +1,8 @@
 # @monemee/client
 
-Lizenzschlüssel für Software zum Herunterladen: Electron, Tauri, Browser-Erweiterungen, Node-CLIs. Einmal aktivieren, danach läuft die App auch **offline**, abgesichert durch Antworten, die Monemee signiert.
+License key validation for desktop and downloadable software: Electron, Tauri, browser extensions and Node CLIs. Activate a key once, then keep working offline thanks to responses signed with Ed25519. No dependencies.
+
+[Monemee SDK](https://github.com/monemee/monemee-sdk) · [Deutsch](https://github.com/monemee/monemee-sdk/blob/main/README.de.md) · [Documentation](https://dev.monemee.com)
 
 ```bash
 npm install @monemee/client
@@ -11,36 +13,39 @@ import { createLicense } from '@monemee/client';
 
 const license = createLicense({ productId: 123 });
 
-// Beim ersten Start: Schlüssel aus der Kauf-Mail eingeben lassen
+// First start: ask for the key from the purchase email
 const result = await license.activate(keyFromUser);
-if (!result.valid) showError(result.reason);   // z. B. 'activation_limit'
+if (!result.valid) showError(result.reason);   // for example 'activation_limit'
 
-// Bei jedem Start
+// Every start
 const { valid, plan, offline } = await license.check();
 if (valid) startPro(plan);
 ```
 
-## Was `check()` macht
+## How `check()` works
 
-1. fragt Monemee, ob der Schlüssel auf diesem Gerät gilt,
-2. prüft die Signatur der Antwort und merkt sie sich,
-3. ohne Netz gilt die letzte gültige Antwort noch `graceDays` Tage (Standard 7, dann `offline: true`).
+1. It asks Monemee whether the key is valid on this device.
+2. It verifies the signature of the answer and stores it.
+3. Without a connection, the last valid answer counts for `graceDays` more days (default 7, reported as `offline: true`).
 
-Erstattet ein Käufer, ist der Schlüssel beim nächsten Online-Check ungültig (`reason: 'revoked'`).
+When a buyer is refunded, the next online check returns `reason: 'revoked'`. Tampered, expired or foreign responses are rejected.
 
-## Optionen
+## Options
 
-| Option | Standard | |
+| Option | Default | |
 |---|---|---|
-| `productId` | – | deine Produkt-ID |
-| `graceDays` | `7` | so lange läuft die App ohne Netz |
-| `storage` | `localStorage` bzw. Datei in `~/.config/monemee-<id>/` | eigener Speicher `{ get, set, remove }` |
-| `deviceName` | – | erscheint in deiner Geräteliste im Dashboard |
+| `productId` | – | Your Monemee product ID |
+| `graceDays` | `7` | How long the app keeps working offline |
+| `storage` | `localStorage`, or a file in `~/.config/monemee-<id>/` on Node | Custom storage `{ get, set, remove }`, for example `chrome.storage` |
+| `deviceName` | – | Shown in the device list of your dashboard |
+| `baseUrl` | `https://monemee.com` | |
 
-**Gerät wechseln:** `await license.deactivate()` gibt den Platz frei. Das Geräte-Limit stellst du am Produkt ein.
+**Moving to a new computer:** `await license.deactivate()` frees the device slot. Set the device limit on the product.
 
-**Testen:** Im Dashboard unter *Lizenzschlüssel → Testschlüssel* bekommst du einen Schlüssel, der 30 Tage gilt, ohne Kauf.
+**Testing:** the dashboard issues test keys under *License keys > Test key*. They are valid for 30 days and need no purchase.
 
-**Voraussetzung:** WebCrypto mit Ed25519 (Node 20+, Electron 28+, aktuelle Browser). Wo das fehlt, funktioniert alles online, offline gibt es dann keinen Puffer.
+**Requirements:** WebCrypto with Ed25519 (Node 20+, Electron 28+, current browsers). Where it is missing, online checks still work, but there is no offline grace period.
 
-MIT-Lizenz
+Python apps use the [monemee Python package](../python), which works the same way.
+
+MIT License

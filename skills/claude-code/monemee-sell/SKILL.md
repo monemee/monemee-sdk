@@ -1,32 +1,32 @@
 ---
 name: monemee-sell
-description: Use when the user wants to sell, monetize or add a paywall/license check to the app in the current project via Monemee ("verkauf diese App über Monemee", "Paywall einbauen", "Lizenzschlüssel prüfen", "Pro-Version freischalten"). Sets up the Monemee Dev-Kit (CLI, @monemee/node, @monemee/react, @monemee/client, Python) correctly.
+description: Use when the user wants to sell or monetize the app in the current project, add a paywall, or add license key validation with Monemee ("sell this app", "add a paywall", "check license keys", "unlock the pro version", "verkauf diese App über Monemee"). Sets up the Monemee SDK (CLI, @monemee/node, @monemee/react, @monemee/client, Python) correctly.
 ---
 
-# Mit Monemee verkaufen
+# Sell an app with Monemee
 
-Lies zuerst `AGENTS.md` aus https://github.com/monemee/monemee-dev, falls im Projekt nicht vorhanden. Die Kurzfassung:
+Read `AGENTS.md` from https://github.com/monemee/monemee-sdk if it is not in the project. Short version:
 
-## 1. Fall bestimmen
-- Käufer loggen sich in der App ein → **Web-App** (Schritt 2).
-- App wird heruntergeladen (Electron, Tauri, CLI, Python-Tool, Erweiterung) → **Lizenzschlüssel** (Schritt 3).
+## 1. Pick the use case
+- Buyers log in to the app: **web app** (step 2).
+- The app is downloaded (Electron, Tauri, CLI, Python tool, extension): **license keys** (step 3).
 
-## 2. Web-App
-1. `npx monemee init` im Projekt ausführen. Der Browser öffnet sich: **Sag dem Nutzer, dass er die Freigabe bestätigen soll**, und warte.
-2. In der Einbindung das `TODO` bei `getRef` durch die echte Nutzer-ID des Logins ersetzen (Session `req.user.id`, Firebase-`uid` aus dem geprüften Token, Supabase-`user.id`). Keine E-Mail als ID verwenden.
-3. Reihenfolge prüfen: `app.use(monemee.webhook())` vor `express.json()`, `app.use(monemee.routes())` nach dem Login, vor den eigenen Routen.
-4. Bezahlte Endpunkte mit `monemee.requireAccess()` schützen, im Frontend `<AccessGate fallback={<BuyButton />}>`.
-5. Token-Login im Browser → `<MonemeeProvider getHeaders={async () => ({ Authorization: 'Bearer ' + token })}>`.
-6. Testen lassen: App starten, einloggen, Testkauf (`npx monemee test-buy` oder Knopf in der Paywall).
-7. `npx monemee live` **nur auf ausdrücklichen Wunsch**. Ausgegebene Secrets nie committen.
+## 2. Web app
+1. Run `npx monemee init` in the project. The browser opens: **tell the user to confirm the authorization** and wait.
+2. Replace the `TODO` at `getRef` with the real user ID of the login (session `req.user.id`, Firebase `uid` from the verified token, Supabase `user.id`). Never use the email address.
+3. Check the order: `app.use(monemee.webhook())` before `express.json()`, `app.use(monemee.routes())` after the login and before your own routes.
+4. Protect paid endpoints with `monemee.requireAccess()`, in the frontend use `<AccessGate fallback={<BuyButton />}>`.
+5. Browser token login: `<MonemeeProvider getHeaders={async () => ({ Authorization: 'Bearer ' + token })}>`.
+6. Let the user test: start the app, log in, test purchase (`npx monemee test-buy` or the button in the paywall).
+7. `npx monemee live` **only when the user explicitly asks**. Never commit the printed secrets.
 
-## 3. Download-Software
-- JS: `npm i @monemee/client` → `createLicense({ productId })`, `activate(key)` einmal, `check()` bei jedem Start.
-- Python: `pip install "monemee[offline]"` → `License(product_id=…)`.
-- Produkt-ID: aus dem Dashboard oder per MCP `create_software_product`.
-- Releases: Workflow mit `monemee/monemee-dev/action@v1` anlegen.
+## 3. Downloadable software
+- JavaScript: `npm i @monemee/client`, then `createLicense({ productId })`, `activate(key)` once, `check()` on every start.
+- Python: `pip install "monemee[offline]"`, then `License(product_id=...)`.
+- Product ID: from the dashboard or the MCP tool `create_software_product`.
+- Releases: add a workflow with `monemee/monemee-sdk/action@v1`.
 
-## Niemals
-- Secrets (`mmapp_`, `whsec_`, `monemee_`) ins Repo oder ins Frontend.
-- Eigene Zahlungs- oder Lizenzlogik bauen.
-- Ohne Rückfrage live schalten.
+## Never
+- Put secrets (`mmapp_`, `whsec_`, `monemee_`) in the repository or in frontend code.
+- Build your own payment or license logic.
+- Go live without asking.

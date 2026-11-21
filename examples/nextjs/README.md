@@ -27,9 +27,9 @@ import { MonemeeProvider, AccessGate, BuyButton } from '@monemee/react';
 export default function Pro() {
   return (
     <MonemeeProvider>
-      <AccessGate fallback={<BuyButton>Pro freischalten</BuyButton>}><h1>Pro ✓</h1></AccessGate>
+      <AccessGate fallback={<BuyButton>Unlock Pro</BuyButton>}><h1>Pro</h1></AccessGate>
     </MonemeeProvider>
   );
 }
 ```
-Rücksprung-URL in Monemee: `https://deine-app.de/monemee/return`
+Return URL in Monemee: `https://deine-app.de/monemee/return`

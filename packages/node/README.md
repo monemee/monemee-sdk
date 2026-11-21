@@ -1,12 +1,14 @@
 # @monemee/node
 
-Verkaufe deine Web-App über Monemee. Käufer bezahlen bei Monemee, landen danach wieder in deiner App und sind dort sofort freigeschaltet. Eine eigene Datenbank-Spalte brauchst du dafür nicht.
+Add a paywall to your Node.js web app and sell access through Monemee. Buyers pay on a hosted checkout, return to your app and are unlocked right away, without a database column of your own. Works with Express, Next.js and any runtime that uses Web-standard `Request` and `Response`.
+
+[Monemee SDK](https://github.com/monemee/monemee-sdk) · [Deutsch](https://github.com/monemee/monemee-sdk/blob/main/README.de.md) · [Documentation](https://dev.monemee.com)
 
 ```bash
-npx monemee init        # richtet alles ein (Login, Produkt, .env, Code)
+npx monemee init        # logs in, creates the product, writes .env, wires up your code
 ```
 
-Oder von Hand:
+or manually:
 
 ```bash
 npm install @monemee/node
@@ -17,15 +19,15 @@ npm install @monemee/node
 ```js
 const express = require('express');
 const monemee = require('@monemee/node')({
-  getRef: (req) => req.user?.id,          // Nutzer-ID aus deinem Login
+  getRef: (req) => req.user?.id,                         // user ID from your login
   loginUrl: (back) => `/login?next=${encodeURIComponent(back)}`
 });
 
 const app = express();
-app.use(monemee.webhook());               // ganz oben: braucht den rohen Body
+app.use(monemee.webhook());       // first: webhooks need the raw body
 app.use(express.json());
-app.use(session(/* … */));                // dein Login
-app.use(monemee.routes());                // NACH deinem Login: kennt dann req.user
+app.use(session(/* ... */));      // your login
+app.use(monemee.routes());        // after your login, so req.user is set
 
 app.get('/api/pro-feature', monemee.requireAccess(), (req, res) => {
   res.json({ ok: true, plan: req.monemee.plan });
@@ -35,8 +37,9 @@ app.get('/api/pro-feature', monemee.requireAccess(), (req, res) => {
 `.env`:
 
 ```bash
-MONEMEE_APP_SECRET=mmapp_test_…    # Lizenzschlüssel → App-Anbindung (oder npx monemee init)
+MONEMEE_APP_SECRET=mmapp_test_...    # Dashboard: License keys > App connection, or npx monemee init
 MONEMEE_PRODUCT_ID=123
+MONEMEE_WEBHOOK_SECRET=whsec_...     # optional, makes refunds take effect instantly
 ```
 
 ## Next.js (App Router)
@@ -54,41 +57,55 @@ export const { GET, POST } = monemee.nextRoute();
 // app/api/pro/route.js
 export async function GET(request) {
   const { response, access } = await monemee.guard(request);
-  if (response) return response;           // 401 / 402 mit buy_url
+  if (response) return response;            // 401 or 402 with buy_url
   return Response.json({ plan: access.plan });
 }
 ```
 
-Hono, Bun, Deno, Cloudflare Workers: `await monemee.handleRequest(request)` liefert eine `Response` oder `null`.
+Hono, Bun and Deno: `await monemee.handleRequest(request)` returns a `Response` or `null`.
 
-## Was die eingebauten Routen tun
+## Built-in routes
 
-| Route | Zweck |
+| Route | Purpose |
 |---|---|
-| `GET /monemee/buy` | Leitet zur Bezahlseite, der Kauf ist schon mit dem eingeloggten Nutzer verknüpft |
-| `GET /monemee/return` | Rücksprung nach dem Kauf: schaltet frei, dann weiter zu `successPath` (`?monemee=unlocked`) |
-| `GET /monemee/access` | `{ access, plan, expires_at, buy_url }` für dein Frontend ([@monemee/react](../react)) |
-| `GET /monemee/buy-url` | `{ url }`: dasselbe als JSON, für Apps mit Token-Login im Browser |
-| `POST /monemee/unlock` | `{ claim }` oder `{ key }`: Freischalten aus dem Browser (Token-Login) bzw. per Lizenzschlüssel |
-| `POST /monemee/webhook` | Erstattungen und Sperren sofort übernehmen (mit `MONEMEE_WEBHOOK_SECRET`) |
-| `GET /monemee/test-buy` | Nur mit Test-Secret: Testkauf ohne Geld, echter Ablauf |
+| `GET /monemee/buy` | Redirects to checkout with the logged-in user attached |
+| `GET /monemee/return` | Return after purchase: unlocks, then redirects to `successPath` (`?monemee=unlocked`) |
+| `GET /monemee/access` | `{ access, plan, expires_at, buy_url }` for your frontend ([@monemee/react](../react)) |
+| `GET /monemee/buy-url` | The same as JSON, for apps that log in with a browser token |
+| `POST /monemee/unlock` | `{ claim }` or `{ key }`: unlock from the browser or with a license key |
+| `POST /monemee/webhook` | Applies refunds and revocations instantly (needs `MONEMEE_WEBHOOK_SECRET`) |
+| `GET /monemee/test-buy` | Test secret only: free test purchase through the real flow |
 
-## Ohne die Routen
+## Without the routes
 
 ```js
-await monemee.hasAccess(userId);              // true / false
+await monemee.hasAccess(userId);              // true or false
 await monemee.access(userId);                 // { access, reason, plan, expires_at }
-await monemee.buyUrl(userId);                 // https://monemee.com/buy/123?ref=…
-await monemee.unlock({ claim, ref: userId }); // Rücksprung-Token einlösen
-await monemee.unlock({ key, ref: userId });   // Lizenzschlüssel einlösen
+await monemee.buyUrl(userId);                 // https://monemee.com/buy/123?ref=...
+await monemee.unlock({ claim, ref: userId }); // redeem a return token
+await monemee.unlock({ key, ref: userId });   // redeem a license key
 ```
 
-## Gut zu wissen
+## Options
 
-- **Testmodus zuerst:** Mit `mmapp_test_…` siehst du nur Testkäufe. Live schaltest du mit `npx monemee live`.
-- **Zwischenspeicher:** Ergebnisse werden 5 Minuten gemerkt (`cacheSeconds`). Mit Webhook wird eine Erstattung sofort wirksam, ohne Webhook spätestens nach Ablauf.
-- **Sicher:** Das App-Secret gehört nur auf den Server. Es darf ausschließlich Zugang prüfen und freischalten, und zwar für genau ein Produkt.
-- **Weitergabe:** Eine eingelöste Lizenz ist an einen Nutzer gebunden und lässt sich nicht für ein zweites Konto verwenden.
-- **Monemee nicht erreichbar:** `requireAccess` antwortet mit 503 und schaltet nicht still frei.
+| Option | Default | |
+|---|---|---|
+| `getRef(req)` | – | Stable user ID of the logged-in user. Never use email addresses. |
+| `appSecret` | `MONEMEE_APP_SECRET` | `mmapp_test_...` or `mmapp_live_...` |
+| `productId` | `MONEMEE_PRODUCT_ID` | Looked up automatically if missing |
+| `basePath` | `/monemee` | Where the built-in routes live |
+| `successPath` | `/` | Redirect target after unlocking |
+| `loginUrl(back)` | – | Where to send buyers who return while logged out |
+| `cacheSeconds` | `300` | How long access results are cached |
+| `onEvent(event)` | – | Called for verified webhook events |
 
-MIT-Lizenz
+## Good to know
+
+- **Test mode first.** A `mmapp_test_...` secret only sees test purchases. Switch to live with `npx monemee live`.
+- **Caching.** Results are cached for five minutes. With webhooks a refund applies immediately, without them within five minutes.
+- **Scope of the secret.** The app secret belongs on the server. It can only check and unlock access, for exactly one product.
+- **No sharing.** A redeemed license is bound to one user and cannot unlock a second account.
+- **Fail closed.** If Monemee is unreachable, `requireAccess` answers 503 instead of granting access.
+- **TypeScript.** Type definitions are included.
+
+MIT License
