@@ -101,7 +101,7 @@ function envFile(project) {
 }
 
 function rel(file) {
-  return path.relative(process.cwd(), file) || file;
+  return path.relative(process.cwd(), file) || '.';
 }
 
 // ---------- Befehle ----------
@@ -231,10 +231,10 @@ async function cmdInit(flags) {
     for (const p of packages) {
       const cmd = `npm install ${p.name}`;
       if (flags['skip-install']) {
-        info(`Bitte installieren: ${bold(cmd)} ${dim(`in ${rel(p.dir) || '.'}`)}`);
+        info(`Bitte installieren: ${bold(cmd)} ${dim(`in ${rel(p.dir)}`)}`);
         continue;
       }
-      if (await ask.confirm(`${cmd} in ${rel(p.dir) || '.'} ausführen?`)) {
+      if (await ask.confirm(`${cmd} in ${rel(p.dir)} ausführen?`)) {
         await new Promise((resolve) => {
           const child = spawn('npm', ['install', ...p.name.split(' ')], { cwd: p.dir, stdio: 'inherit', shell: process.platform === 'win32' });
           child.on('exit', (code) => {
@@ -318,12 +318,16 @@ async function cmdLive(flags) {
     const live = await api.createAppSecret(product.id, 'live');
     let webhook = null;
     if (await ask.confirm('Webhook einrichten (Erstattungen sofort wirksam)?')) {
-      webhook = await api.createWebhook({
-        url: `${origin}/monemee/webhook`,
-        events: ['license.created', 'license.revoked', 'license.activated'],
-        description: 'monemee CLI'
-      });
-      ok(`Webhook: ${origin}/monemee/webhook`);
+      try {
+        webhook = await api.createWebhook({
+          url: `${origin}/monemee/webhook`,
+          events: ['license.created', 'license.revoked', 'license.activated'],
+          description: 'monemee CLI'
+        });
+        ok(`Webhook: ${origin}/monemee/webhook`);
+      } catch (err) {
+        warn(`Webhook nicht angelegt (${err.message}). Später erneut: npx monemee live – ohne Webhook greifen Erstattungen nach spätestens 5 Minuten.`);
+      }
     }
 
     console.log(`
