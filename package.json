@@ -1,0 +1,14 @@
+{
+  "name": "monemee-dev",
+  "private": true,
+  "description": "Monemee Dev-Kit: verkaufe deine App mit einem Befehl",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "test": "npm test --workspaces --if-present"
+  },
+  "engines": {
+    "node": ">=18.17"
+  }
+}

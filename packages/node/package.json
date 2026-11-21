@@ -1,0 +1,16 @@
+{
+  "name": "@monemee/node",
+  "version": "0.1.0",
+  "description": "Verkaufe deine Web-App über Monemee: Kauf-Link, Freischaltung nach dem Kauf, Zugangsprüfung – ohne eigene Datenbank-Spalte.",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "files": ["index.js", "index.d.ts", "src", "README.md"],
+  "scripts": {
+    "test": "node --test --test-timeout=15000 \"test/*.test.js\""
+  },
+  "keywords": ["monemee", "paywall", "license", "licensing", "saas", "express", "nextjs", "sell"],
+  "license": "MIT",
+  "engines": { "node": ">=18.17" },
+  "repository": { "type": "git", "url": "https://github.com/monemee/monemee-dev", "directory": "packages/node" },
+  "homepage": "https://github.com/monemee/monemee-dev/tree/main/packages/node#readme"
+}
