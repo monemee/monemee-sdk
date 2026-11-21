@@ -1,0 +1,16 @@
+{
+  "name": "monemee-express-react",
+  "private": true,
+  "workspaces": [
+    "server",
+    "client"
+  ],
+  "scripts": {
+    "dev": "concurrently -n server,client \"npm run dev -w server\" \"npm run dev -w client\"",
+    "build": "npm run build --workspace client",
+    "start": "npm start --workspace server"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  }
+}
