@@ -1,0 +1,5 @@
+{
+  "name": "monemee-python",
+  "private": true,
+  "scripts": { "test": "python3 -m unittest discover -s tests" }
+}

@@ -1,0 +1,23 @@
+[build-system]
+requires = ["hatchling>=1.21"]
+build-backend = "hatchling.build"
+
+[project]
+name = "monemee"
+version = "0.1.0"
+description = "Verkaufe deine App über Monemee: Lizenzschlüssel für Python-Tools und Zugang für Web-Apps (Flask, FastAPI, Django)."
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.9"
+dependencies = []
+keywords = ["monemee", "license", "license-key", "paywall", "flask", "fastapi"]
+
+[project.optional-dependencies]
+# Offline-Prüfung signierter Lizenzantworten (Ed25519)
+offline = ["cryptography>=41"]
+
+[project.urls]
+Homepage = "https://github.com/monemee/monemee-dev/tree/main/packages/python"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/monemee"]
