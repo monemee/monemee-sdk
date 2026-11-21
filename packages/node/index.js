@@ -8,7 +8,9 @@ const { verifyWebhook } = require('./src/webhook');
  * Monemee für Web-Apps mit Login.
  *
  *   const monemee = require('@monemee/node')({ getRef: (req) => req.user?.id });
- *   app.use(monemee.routes());                                  // vor express.json()
+ *   app.use(monemee.webhook());                                 // ganz oben, vor express.json()
+ *   …express.json(), Session/Login…
+ *   app.use(monemee.routes());                                  // nach deiner Login-Middleware
  *   app.get('/api/pro', monemee.requireAccess(), handler);
  *
  * Siehe README.md für Next.js, Fastify und Webhooks.
@@ -16,8 +18,10 @@ const { verifyWebhook } = require('./src/webhook');
 function createMonemee(options) {
   const core = createCore(options);
   return Object.assign(core, {
-    /** Express/Connect/Node-Middleware für /monemee/* (return, buy, access, unlock, webhook, test-buy) */
+    /** Express/Connect/Node-Middleware für /monemee/* – NACH deiner Login-Middleware einbinden */
     routes: () => adapters.expressRoutes(core),
+    /** Nur POST /monemee/webhook – ganz oben, VOR express.json() (braucht den rohen Body) */
+    webhook: () => adapters.expressWebhook(core),
     /** Express-Middleware: nur mit Zugang weiter (setzt req.monemee), sonst 401/402 */
     requireAccess: (getRef) => adapters.expressRequireAccess(core, getRef),
     /** Web-Standard: Request → Response | null */

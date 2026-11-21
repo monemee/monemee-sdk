@@ -258,7 +258,23 @@ test('Webhook nach express.json(): klare Fehlermeldung statt stiller Durchlass',
   try {
     const r = await fetch_(`http://127.0.0.1:${server.address().port}/monemee/webhook`, { method: 'POST', body: '{}', headers: { 'Monemee-Signature': 't=1,v1=00' } });
     assert.equal(r.status, 400);
-    assert.match((await r.json()).message, /VOR express.json\(\)/);
+    assert.match((await r.json()).message, /monemee.webhook\(\)\) VOR express.json\(\)/);
+  } finally {
+    await new Promise((res) => server.close(res));
+  }
+});
+
+test('webhook(): beantwortet nur POST /monemee/webhook, alles andere geht weiter', async () => {
+  const m = createMonemee({ appSecret: SECRET, webhookSecret: WHSEC, fetch: fakeFetch({}), getRef: () => 'u' });
+  const hook = m.webhook();
+  const server = http.createServer((req, res) => hook(req, res, () => res.end('weiter')));
+  await new Promise((r) => server.listen(0, '127.0.0.1', r));
+  const base = `http://127.0.0.1:${server.address().port}`;
+  try {
+    const body = JSON.stringify({ event: 'license.created', created: 1, data: {} });
+    const ok = await fetch_(`${base}/monemee/webhook`, { method: 'POST', body, headers: { 'Monemee-Signature': sign(body) } });
+    assert.equal(ok.status, 200);
+    assert.equal(await (await fetch_(`${base}/monemee/access`)).text(), 'weiter');
   } finally {
     await new Promise((res) => server.close(res));
   }

@@ -1,0 +1,15 @@
+{
+  "name": "monemee",
+  "version": "0.1.0",
+  "description": "Verkaufe deine App über Monemee – ein Befehl richtet Login, Produkt, Secrets und Code ein.",
+  "type": "module",
+  "bin": { "monemee": "bin/monemee.js" },
+  "files": ["bin", "src", "README.md"],
+  "scripts": {
+    "test": "node --test --test-timeout=20000 \"test/*.test.js\""
+  },
+  "engines": { "node": ">=18.17" },
+  "keywords": ["monemee", "cli", "sell", "license", "paywall"],
+  "license": "MIT",
+  "repository": { "type": "git", "url": "https://github.com/monemee/monemee-dev", "directory": "packages/cli" }
+}

@@ -60,8 +60,10 @@ export interface Monemee<R = any> {
   testBuyUrl(ref: Ref, opts?: { returnUrl?: string }): Promise<string>;
   handleWebhook(rawBody: string | Buffer, signatureHeader: string): Promise<MonemeeEvent>;
   clearCache(ref?: Ref): void;
-  /** Express/Connect/Node: /monemee/return|buy|buy-url|access|unlock|webhook|test-buy – vor express.json() einbinden */
+  /** Express/Connect/Node: /monemee/return|buy|buy-url|access|unlock|test-buy – NACH deiner Login-Middleware */
   routes(): NodeMiddleware;
+  /** Nur POST /monemee/webhook – ganz oben, VOR express.json() (braucht den rohen Body) */
+  webhook(): NodeMiddleware;
   /** Express: nur mit Zugang weiter (req.monemee = AccessResult), sonst 401/402 */
   requireAccess(getRef?: RefResolver<R>): NodeMiddleware;
   /** Web-Standard: Request → Response | null */

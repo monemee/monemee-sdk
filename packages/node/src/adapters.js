@@ -7,7 +7,7 @@
 const MAX_BODY_BYTES = 1024 * 1024;
 
 const RAW_BODY_HINT =
-  'Der Request-Body wurde schon von einem Body-Parser gelesen. Binde monemee.routes() VOR express.json() ein ' +
+  'Der Request-Body wurde schon von einem Body-Parser gelesen. Binde app.use(monemee.webhook()) VOR express.json() ein ' +
   '(oder stelle req.rawBody bereit), damit Webhook-Signaturen geprüft werden können.';
 
 function readNodeBody(req, { raw }) {
@@ -78,6 +78,16 @@ function expressRoutes(monemee) {
   };
 }
 
+/** Nur der Webhook – ganz oben einbinden (braucht den rohen Body). */
+function expressWebhook(monemee) {
+  const routes = expressRoutes(monemee);
+  return function monemeeWebhook(req, res, next) {
+    const pathname = new URL(req.originalUrl || req.url || '/', 'http://x').pathname;
+    if (req.method === 'POST' && pathname === `${monemee.basePath}/webhook`) return routes(req, res, next);
+    return next();
+  };
+}
+
 /** Express-Middleware: nur mit Zugang weiter, sonst 401/402 mit buy_url. */
 function expressRequireAccess(monemee, getRef) {
   return function requireAccess(req, res, next) {
@@ -140,4 +150,4 @@ async function guard(monemee, request, getRef) {
   return r.ok ? { response: null, access: r.access } : { response: toResponse(r.response), access: null };
 }
 
-module.exports = { expressRoutes, expressRequireAccess, handleRequest, nextRoute, guard, RAW_BODY_HINT };
+module.exports = { expressRoutes, expressWebhook, expressRequireAccess, handleRequest, nextRoute, guard, RAW_BODY_HINT };

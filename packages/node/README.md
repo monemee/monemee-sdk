@@ -22,8 +22,10 @@ const monemee = require('@monemee/node')({
 });
 
 const app = express();
-app.use(monemee.routes());                // VOR express.json()
+app.use(monemee.webhook());               // ganz oben: braucht den rohen Body
 app.use(express.json());
+app.use(session(/* … */));                // dein Login
+app.use(monemee.routes());                // NACH deinem Login: kennt dann req.user
 
 app.get('/api/pro-feature', monemee.requireAccess(), (req, res) => {
   res.json({ ok: true, plan: req.monemee.plan });
