@@ -1,0 +1,347 @@
+openapi: 3.1.0
+info:
+  title: Monemee Dev-Kit API
+  version: 0.1.0
+  description: |
+    Die Endpunkte, die das Monemee Dev-Kit nutzt. Antworten haben immer die Form
+    `{ "success": true, "data": … }`. Fachliche Ablehnungen (kein Zugang, Schlüssel
+    gesperrt …) kommen als **200** mit `valid:false` bzw. `access:false` und `reason`.
+    Vollständige Creator-API: https://monemee.com/api-docs
+  license:
+    name: MIT
+servers:
+  - url: https://monemee.com
+tags:
+  - name: Apps
+    description: Zugang für Web-Apps mit Login (Auth – App-Secret)
+  - name: Lizenzen
+    description: Öffentliche Lizenzprüfung für Download-Software (ohne Auth)
+  - name: Creator
+    description: Verwaltung über die Public API (API-Key oder CLI-Login)
+
+paths:
+  /api/v1/apps/access:
+    post:
+      tags: [Apps]
+      summary: Hat dieser Nutzer Zugang?
+      security: [{ appSecret: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RefBody' }
+      responses:
+        '200': { $ref: '#/components/responses/Access' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /api/v1/apps/claim:
+    post:
+      tags: [Apps]
+      summary: Rücksprung-Token oder Lizenzschlüssel einlösen und an den Nutzer binden
+      security: [{ appSecret: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/RefBody'
+                - type: object
+                  properties:
+                    claim: { type: string, pattern: '^mmc_[0-9A-Za-z]{32}$', description: 'aus ?monemee_claim=' }
+                    key: { type: string, example: MM-A7K2-9FQ3-XT8M-2B4C }
+      responses:
+        '200': { $ref: '#/components/responses/Access' }
+
+  /api/v1/apps/test-claim:
+    post:
+      tags: [Apps]
+      summary: Testkauf ohne Geld (nur mmapp_test_…)
+      security: [{ appSecret: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/RefBody'
+                - type: object
+                  properties:
+                    return_url: { type: string, format: uri, description: 'nur localhost oder Domain der Produkt-Rücksprung-URL' }
+      responses:
+        '200':
+          description: Rücksprung-Link mit Token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      redirectUrl: { type: string, format: uri }
+                      license_id: { type: integer }
+        '403': { description: Live-Secret }
+
+  /api/v1/apps/me:
+    get:
+      tags: [Apps]
+      summary: Produkt und Modus zum App-Secret
+      security: [{ appSecret: [] }]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      product_id: { type: integer }
+                      title: { type: string }
+                      status: { type: string }
+                      mode: { type: string, enum: [test, live] }
+                      license_enabled: { type: boolean }
+                      return_url: { type: [string, 'null'] }
+                      buy_url: { type: string, format: uri }
+
+  /buy/{productId}:
+    get:
+      tags: [Apps]
+      summary: Kauf-Link (Webseite) – leitet direkt zur Bezahlseite
+      parameters:
+        - { name: productId, in: path, required: true, schema: { type: integer } }
+        - { name: ref, in: query, schema: { type: string }, description: 'Nutzer-ID deiner App' }
+        - { name: aff, in: query, schema: { type: string }, description: 'Affiliate-Code' }
+      responses:
+        '200': { description: Seite, die zu Stripe weiterleitet }
+
+  /api/v1/licenses/activate:
+    post:
+      tags: [Lizenzen]
+      summary: Schlüssel auf einem Gerät aktivieren
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/LicenseBody'
+                - type: object
+                  required: [device_id]
+                  properties:
+                    device_name: { type: string, maxLength: 100 }
+      responses:
+        '200': { $ref: '#/components/responses/License' }
+
+  /api/v1/licenses/validate:
+    post:
+      tags: [Lizenzen]
+      summary: Gilt der Schlüssel (auf diesem Gerät)?
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LicenseBody' }
+      responses:
+        '200': { $ref: '#/components/responses/License' }
+
+  /api/v1/licenses/deactivate:
+    post:
+      tags: [Lizenzen]
+      summary: Gerät freigeben
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LicenseBody' }
+      responses:
+        '200': { description: '{ deactivated, activations }' }
+
+  /.well-known/monemee-license-keys.json:
+    get:
+      tags: [Lizenzen]
+      summary: Öffentliche Schlüssel für signierte Lizenzantworten
+      responses:
+        '200':
+          description: JWKS (OKP/Ed25519)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  keys:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        kty: { const: OKP }
+                        crv: { const: Ed25519 }
+                        x: { type: string }
+                        kid: { type: string }
+
+  /api/v1/public/products/{id}/app-secrets:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: integer } }
+    get:
+      tags: [Creator]
+      summary: App-Secrets auflisten (ohne Klartext)
+      security: [{ apiKey: [] }]
+      responses:
+        '200': { description: Liste }
+    post:
+      tags: [Creator]
+      summary: App-Secret anlegen (Klartext nur in dieser Antwort)
+      security: [{ apiKey: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [mode]
+              properties:
+                mode: { type: string, enum: [test, live] }
+      responses:
+        '201': { description: '{ id, mode, prefix, secret }' }
+        '409': { description: Höchstens 2 aktive pro Modus }
+
+  /api/v1/public/products/{id}/app-secrets/{secretId}:
+    delete:
+      tags: [Creator]
+      summary: App-Secret widerrufen
+      security: [{ apiKey: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+        - { name: secretId, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: Widerrufen }
+
+  /api/v1/public/products/{id}/file:
+    put:
+      tags: [Creator]
+      summary: Neue Dateiversion im bestehenden Modul (Download-Links bleiben gültig)
+      security: [{ apiKey: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [file_url, file_name, file_size]
+              properties:
+                file_url: { type: string, format: uri, description: 'aus /public/uploads/sign + finalize' }
+                file_name: { type: string }
+                file_size: { type: integer }
+                module_id: { type: integer, description: 'Standard: erstes Datei-Modul' }
+      responses:
+        '200': { description: '{ module_id, replaced: true }' }
+        '201': { description: 'Neues Datei-Modul angelegt' }
+
+  /api/v1/public/licenses/{licenseId}/unbind:
+    post:
+      tags: [Creator]
+      summary: Bindung einer Lizenz an einen Nutzer lösen
+      security: [{ apiKey: [] }]
+      parameters:
+        - { name: licenseId, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: Lizenz ohne external_ref }
+
+  /api/v1/products/{id}/badge.svg:
+    get:
+      tags: [Creator]
+      summary: „Kaufen auf MoneMee“-Abzeichen
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200':
+          description: SVG
+          content:
+            image/svg+xml: {}
+
+components:
+  securitySchemes:
+    appSecret:
+      type: http
+      scheme: bearer
+      description: 'mmapp_test_… / mmapp_live_… – nur serverseitig verwenden'
+    apiKey:
+      type: http
+      scheme: bearer
+      description: 'monemee_… (API-Key) oder CLI-Login-Token (Scope monemee:cli)'
+  schemas:
+    RefBody:
+      type: object
+      required: [ref]
+      properties:
+        ref:
+          type: string
+          pattern: '^[A-Za-z0-9._:@-]{1,128}$'
+          description: Stabile Nutzer-ID deiner App (keine E-Mail)
+    LicenseBody:
+      type: object
+      required: [key, product_id]
+      properties:
+        key: { type: string, example: MM-A7K2-9FQ3-XT8M-2B4C }
+        product_id: { type: integer }
+        device_id: { type: string, maxLength: 128 }
+    Signed:
+      type: object
+      description: Ed25519-Signatur über den exakten String `payload` (kanonisches JSON)
+      properties:
+        payload: { type: string }
+        signature: { type: string, description: base64url }
+        kid: { type: string }
+        alg: { const: EdDSA }
+  responses:
+    Access:
+      description: Zugangsstatus
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success: { type: boolean }
+              data:
+                type: object
+                properties:
+                  access: { type: boolean }
+                  reason:
+                    type: [string, 'null']
+                    enum: [no_license, revoked, expired, ref_mismatch, claim_invalid, claim_expired, mode_mismatch, null]
+                  ref: { type: string }
+                  plan: { type: [string, 'null'] }
+                  expires_at: { type: [string, 'null'], format: date-time }
+                  license_id: { type: integer }
+                  test: { type: boolean }
+    License:
+      description: Lizenzstatus
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success: { type: boolean }
+              data:
+                type: object
+                properties:
+                  valid: { type: boolean }
+                  reason:
+                    type: [string, 'null']
+                    enum: [not_found, product_mismatch, revoked, expired, device_not_activated, activation_limit, null]
+                  plan: { type: [string, 'null'] }
+                  expires_at: { type: [string, 'null'], format: date-time }
+                  test: { type: boolean }
+                  activations:
+                    type: object
+                    properties:
+                      used: { type: integer }
+                      max: { type: [integer, 'null'] }
+                  signed: { $ref: '#/components/schemas/Signed' }
+    Unauthorized:
+      description: App-Secret fehlt, ist ungültig oder widerrufen

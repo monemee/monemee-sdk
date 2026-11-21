@@ -1,0 +1,12 @@
+---
+description: Monemee Dev-Kit – App verkaufen, Paywall, Lizenzschlüssel
+globs:
+alwaysApply: false
+---
+
+Wenn der Nutzer die App über Monemee verkaufen oder eine Paywall bzw. Lizenzprüfung einbauen will:
+
+- Web-App mit Login: `npx monemee init` ausführen (der Nutzer bestätigt den Login im Browser), dann `getRef` auf die echte Nutzer-ID setzen. `monemee.webhook()` vor `express.json()`, `monemee.routes()` nach dem Login. Schützen mit `monemee.requireAccess()` bzw. `<AccessGate fallback={<BuyButton />}>`.
+- Download-Software: `@monemee/client` (`createLicense({ productId })`, `activate`, `check`) bzw. Python `monemee.License`.
+- Secrets nur in `.env`, `.env` in `.gitignore`. Live schalten nur auf Wunsch (`npx monemee live`).
+- Doku: https://github.com/monemee/monemee-dev/blob/main/AGENTS.md

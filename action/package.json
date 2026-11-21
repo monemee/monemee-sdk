@@ -1,0 +1,5 @@
+{
+  "name": "monemee-action",
+  "private": true,
+  "scripts": { "test": "node --test --test-timeout=20000 \"test/*.test.js\"" }
+}

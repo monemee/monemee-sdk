@@ -1,0 +1,28 @@
+name: 'Monemee Release'
+description: 'Lädt eine Release-Datei als neue Version deines Monemee-Produkts hoch. Bisherige Käufer bekommen über ihre Links automatisch die neue Version.'
+author: 'Monemee'
+branding:
+  icon: 'upload-cloud'
+  color: 'blue'
+inputs:
+  api-key:
+    description: 'Monemee API-Key (monemee_…) – als GitHub-Secret ablegen (Einstellungen → API-Keys)'
+    required: true
+  product-id:
+    description: 'ID deines Monemee-Produkts'
+    required: true
+  file:
+    description: 'Pfad zur Datei, z. B. dist/meine-app.zip'
+    required: true
+  base-url:
+    description: 'Monemee-Adresse (nur für Tests ändern)'
+    required: false
+    default: 'https://monemee.com'
+outputs:
+  module-id:
+    description: 'ID des aktualisierten Datei-Moduls'
+  file-url:
+    description: 'Gespeicherte Datei'
+runs:
+  using: 'node20'
+  main: 'index.js'

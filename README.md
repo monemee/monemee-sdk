@@ -40,7 +40,7 @@ await license.activate('MM-XXXX-XXXX-XXXX-XXXX');
 if ((await license.check()).valid) startPro();
 ```
 
-→ [`@monemee/client`](packages/client) · [Python `monemee`](packages/python) · [Beispiele](examples)
+→ [`@monemee/client`](packages/client) · [Python `monemee`](packages/python) · [Beispiele: Electron, Browser-Erweiterung, Python-CLI, Flask, Next.js](examples)
 
 ### 3 · Mach's mit KI
 
@@ -73,7 +73,7 @@ jobs:
 ## Kauf-Knopf und Abzeichen
 
 ```markdown
-[![Kaufen auf Monemee](https://monemee.com/badge/123.svg)](https://monemee.com/p/123)
+[![Kaufen auf Monemee](https://monemee.com/api/v1/products/123/badge.svg)](https://monemee.com/p/123)
 ```
 
 ## Befehle
