@@ -109,4 +109,8 @@ jobs:
             on {print}
           ' CHANGELOG.md > notes.md
           [ -s notes.md ] || echo "Release $TAG" > notes.md
-          gh release create "$TAG" --title "$TAG" --notes-file notes.md --verify-tag
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release edit "$TAG" --notes-file notes.md
+          else
+            gh release create "$TAG" --title "$TAG" --notes-file notes.md --verify-tag
+          fi
