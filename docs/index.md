@@ -28,6 +28,8 @@ The CLI logs you in through the browser, creates the product, writes your `.env`
 | Python tool or Flask, FastAPI, Django app | [Python](license-keys/#python) | `monemee` on PyPI |
 | Releases from GitHub | [Deliver updates](github-action/) | GitHub Action |
 
+Step-by-step [guides](guides/) cover [Next.js](guides/nextjs-paywall/), [Express and React](guides/express-react-paywall/), [Electron](guides/electron-license-key/), [Tauri](guides/tauri-license-key/), [Chrome extensions](guides/chrome-extension-license-key/), [Python](guides/python-license-key/) and [testing without paying](guides/test-purchase-flow/).
+
 ## What Monemee handles for you
 
 - **Checkout and payments.** A buy link per product; card payments run through Stripe.

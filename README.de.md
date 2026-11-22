@@ -23,6 +23,7 @@ Die CLI loggt dich im Browser ein, legt das Produkt an, schreibt die `.env` und 
 - [Paywall in eine Web-App einbauen](#paywall-in-eine-web-app-einbauen-express-nextjs-react)
 - [Lizenzschlüssel in Desktop-Apps prüfen](#lizenzschlüssel-in-desktop-apps-und-download-software-prüfen)
 - [Neue Versionen aus GitHub Releases](#neue-versionen-aus-github-releases-veröffentlichen)
+- [Anleitungen](#anleitungen)
 - [Pakete](#pakete)
 - [So läuft ein Kauf ab](#so-läuft-ein-kauf-ab)
 - [Sicherheit](#sicherheit)
@@ -125,6 +126,18 @@ Die Datei wird im bestehenden Produkt ersetzt. Download-Links, die Käufer schon
 ```markdown
 [![Kaufen auf Monemee](https://monemee.com/api/v1/products/123/badge.svg)](https://monemee.com/p/123)
 ```
+
+## Anleitungen
+
+Schritt-für-Schritt-Anleitungen (auf Englisch) auf [dev.monemee.com](https://dev.monemee.com/guides/):
+
+- [Lizenzschlüssel-Prüfung in eine Electron-App einbauen](https://dev.monemee.com/guides/electron-license-key/)
+- [Chrome-Erweiterung mit Lizenzschlüssel verkaufen (Manifest V3)](https://dev.monemee.com/guides/chrome-extension-license-key/)
+- [Paywall in eine Next.js-App (App Router) einbauen](https://dev.monemee.com/guides/nextjs-paywall/)
+- [Paywall in eine Express- und React-App einbauen](https://dev.monemee.com/guides/express-react-paywall/)
+- [Lizenzschlüssel-Prüfung für Python-CLIs und Desktop-Tools](https://dev.monemee.com/guides/python-license-key/)
+- [Lizenzschlüssel-Prüfung in eine Tauri-App einbauen](https://dev.monemee.com/guides/tauri-license-key/)
+- [Kauf testen, ohne zu bezahlen](https://dev.monemee.com/guides/test-purchase-flow/)
 
 ## Pakete
 

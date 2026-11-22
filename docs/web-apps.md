@@ -37,6 +37,8 @@ app.get('/api/pro', monemee.requireAccess(), (req, res) => {
 
 `requireAccess()` answers `401` when nobody is logged in and `402` with a `buy_url` when the user has not bought yet.
 
+Step by step: [Express and React paywall guide]({{ '/guides/express-react-paywall/' | relative_url }}).
+
 ## 3. Next.js App Router
 
 ```js
@@ -55,6 +57,8 @@ export async function GET(request) {
   return Response.json({ plan: access.plan });
 }
 ```
+
+Step by step, including server components: [Next.js paywall guide]({{ '/guides/nextjs-paywall/' | relative_url }}).
 
 ## 4. React paywall
 
@@ -84,7 +88,7 @@ Start your app, log in and run:
 npx monemee test-buy
 ```
 
-You go through the real flow, including the return to your app, with a test license. Test licenses are only visible to test secrets.
+You go through the real flow, including the return to your app, with a test license. Test licenses are only visible to test secrets. More in [Test the purchase flow without paying]({{ '/guides/test-purchase-flow/' | relative_url }}).
 
 ## 6. Go live
 

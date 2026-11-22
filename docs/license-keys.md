@@ -36,6 +36,8 @@ const { valid, plan, offline } = await license.check();
 
 In Electron, run the license code in the main process and expose it to the renderer through a preload script. In Chrome extensions, pass `chrome.storage` as storage. Both are shown in the [examples](https://github.com/monemee/monemee-sdk/tree/main/examples).
 
+Step-by-step guides: [Electron]({{ '/guides/electron-license-key/' | relative_url }}), [Tauri]({{ '/guides/tauri-license-key/' | relative_url }}) and [Chrome extensions]({{ '/guides/chrome-extension-license-key/' | relative_url }}).
+
 ## Python
 
 ```bash
@@ -50,6 +52,8 @@ lic.activate("MM-XXXX-XXXX-XXXX-XXXX")   # once
 if lic.check().valid:                     # on every start
     run_pro()
 ```
+
+Full walkthrough with a command-line interface: [Python license key guide]({{ '/guides/python-license-key/' | relative_url }}).
 
 ## Offline license verification
 
@@ -75,4 +79,4 @@ The public keys are bundled with the SDKs and published at `https://monemee.com/
 
 ## Testing
 
-The dashboard issues test keys under *License keys > Test key*. They are valid for 30 days, behave like real keys and are marked with `test: true`.
+The dashboard issues test keys under *License keys > Test key*. They are valid for 30 days, behave like real keys and are marked with `test: true`. More in [Test the purchase flow without paying]({{ '/guides/test-purchase-flow/' | relative_url }}).

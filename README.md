@@ -24,6 +24,7 @@ The CLI logs you in through the browser, creates the product, writes your `.env`
 - [Add a paywall to a web app](#add-a-paywall-to-a-web-app-express-nextjs-react)
 - [License key validation for desktop apps](#license-key-validation-for-desktop-and-downloadable-software)
 - [Ship new versions from GitHub Releases](#ship-new-versions-from-github-releases)
+- [Guides](#guides)
 - [Packages](#packages)
 - [How the purchase flow works](#how-the-purchase-flow-works)
 - [Security](#security)
@@ -126,6 +127,18 @@ The file is replaced inside the existing product, so download links already sent
 ```markdown
 [![Buy on Monemee](https://monemee.com/api/v1/products/123/badge.svg)](https://monemee.com/p/123)
 ```
+
+## Guides
+
+Step-by-step guides on [dev.monemee.com](https://dev.monemee.com/guides/):
+
+- [Add license key validation to an Electron app](https://dev.monemee.com/guides/electron-license-key/)
+- [Sell a Chrome extension with license keys (Manifest V3)](https://dev.monemee.com/guides/chrome-extension-license-key/)
+- [Add a paywall to a Next.js App Router app](https://dev.monemee.com/guides/nextjs-paywall/)
+- [Add a paywall to an Express and React app](https://dev.monemee.com/guides/express-react-paywall/)
+- [License key validation for a Python CLI or desktop app](https://dev.monemee.com/guides/python-license-key/)
+- [Add license key validation to a Tauri app](https://dev.monemee.com/guides/tauri-license-key/)
+- [Test the purchase flow without paying](https://dev.monemee.com/guides/test-purchase-flow/)
 
 ## Packages
 
