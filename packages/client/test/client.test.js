@@ -4,7 +4,7 @@ import crypto from 'node:crypto';
 import { createLicense, verifySigned } from '../src/index.js';
 
 const { privateKey, publicKey } = crypto.generateKeyPairSync('ed25519');
-const JWK = { kid: 'mm-1', x: publicKey.export({ format: 'jwk' }).x };
+const JWK = { kid: 'test-1', x: publicKey.export({ format: 'jwk' }).x };
 const KEY = 'MM-A7K2-9FQ3-XT8M-2B4C';
 const PID = 42;
 
@@ -14,7 +14,7 @@ function signedFor(fields, priv = privateKey) {
     device_id: null, valid: true, reason: null, plan: 'pro', expires_at: null, test: false,
     issued_at: new Date().toISOString(), ...fields
   }).sort()));
-  return { payload, signature: crypto.sign(null, Buffer.from(payload), priv).toString('base64url'), kid: 'mm-1', alg: 'EdDSA' };
+  return { payload, signature: crypto.sign(null, Buffer.from(payload), priv).toString('base64url'), kid: 'test-1', alg: 'EdDSA' };
 }
 
 function memory() {

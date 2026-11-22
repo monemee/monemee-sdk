@@ -14,10 +14,11 @@
 const KEY_REGEX = /^MM(-[A-Z0-9]{4}){4}$/;
 const STORE_VERSION = 1;
 
-// Öffentliche Schlüssel von monemee.com (zusätzlich unter /.well-known/monemee-license-keys.json).
-// Wird bei Veröffentlichung mit dem Produktiv-Schlüssel befüllt; fehlt er, holt das
-// Paket die Schlüssel beim ersten Online-Check und merkt sie sich.
-export const BUNDLED_PUBLIC_KEYS = [];
+// Public signing keys of monemee.com (also published at /.well-known/monemee-license-keys.json).
+// Unknown key IDs (after a key rotation) are fetched on the next online check and remembered.
+export const BUNDLED_PUBLIC_KEYS = [
+  { kid: 'mm-1', kty: 'OKP', crv: 'Ed25519', x: '-dEgFSZLvP66Cqh_ksHi4rfOJoR2IKp8k3s9LBtUMgM' }
+];
 
 export class LicenseError extends Error {
   constructor(message, code) {
@@ -144,17 +145,26 @@ export function createLicense(options = {}) {
     return id;
   }
 
-  async function ensureKeys() {
-    if (keys.length) return;
+  function addKeys(list) {
+    for (const k of Array.isArray(list) ? list : []) {
+      if (k && k.kid && k.x && !keys.some((e) => e.kid === k.kid)) keys = [...keys, k];
+    }
+  }
+
+  // Fetches keys only when the response uses a key ID we do not know yet (key rotation).
+  async function ensureKeys(kid) {
+    if (keys.some((k) => k.kid === kid)) return;
     const cached = await storage.get('keys');
     if (cached) {
-      try { keys = JSON.parse(cached); return; } catch (_) { /* neu holen */ }
+      try { addKeys(JSON.parse(cached)); } catch (_) { /* neu holen */ }
+      if (keys.some((k) => k.kid === kid)) return;
     }
     const res = await doFetch(`${baseUrl}/.well-known/monemee-license-keys.json`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const json = await res.json();
-    keys = Array.isArray(json.keys) ? json.keys : [];
-    if (keys.length) await storage.set('keys', JSON.stringify(keys));
+    const fetched = Array.isArray(json.keys) ? json.keys : [];
+    addKeys(fetched);
+    if (fetched.length) await storage.set('keys', JSON.stringify(fetched));
   }
 
   async function post(path, body) {
@@ -170,7 +180,7 @@ export function createLicense(options = {}) {
 
   /** Prüft eine signierte Antwort gegen Schlüssel, Produkt, Gerät und Zeit. */
   async function trusted(signed, key, device, { maxAgeMs }) {
-    try { await ensureKeys(); } catch (_) { /* offline: nur gebündelte/gemerkte Schlüssel */ }
+    try { await ensureKeys(signed && signed.kid); } catch (_) { /* offline: nur gebündelte/gemerkte Schlüssel */ }
     const p = await verifySigned(signed, keys);
     if (!p) return null;
     if (p.product_id !== productId || p.key_sha256 !== (await sha256Hex(key))) return null;

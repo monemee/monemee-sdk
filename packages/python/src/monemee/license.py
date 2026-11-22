@@ -16,8 +16,11 @@ from . import _http
 
 KEY_RE = re.compile(r"^MM(-[A-Z0-9]{4}){4}$")
 STORE_VERSION = 1
-# Wird bei Veröffentlichung mit dem Produktiv-Schlüssel befüllt; sonst einmal online geholt.
-BUNDLED_PUBLIC_KEYS = []
+# Public signing keys of monemee.com (also at /.well-known/monemee-license-keys.json).
+# Unknown key IDs (after a key rotation) are fetched on the next online check.
+BUNDLED_PUBLIC_KEYS = [
+    {"kid": "mm-1", "kty": "OKP", "crv": "Ed25519", "x": "-dEgFSZLvP66Cqh_ksHi4rfOJoR2IKp8k3s9LBtUMgM"},
+]
 
 
 @dataclass
@@ -124,21 +127,30 @@ class License:
         res = _http.request("POST", "%s/api/v1/licenses/%s" % (self.base_url, path), body, timeout=self.timeout)
         return (res or {}).get("data") or {}
 
-    def _ensure_keys(self, data):
-        if self._keys:
+    def _add_keys(self, keys):
+        known = {k.get("kid") for k in self._keys}
+        for k in keys or []:
+            if isinstance(k, dict) and k.get("kid") and k.get("x") and k["kid"] not in known:
+                self._keys.append(k)
+                known.add(k["kid"])
+
+    def _ensure_keys(self, data, kid):
+        # Fetch keys only for a key ID we do not know yet (key rotation).
+        if any(k.get("kid") == kid for k in self._keys):
             return
-        if data.get("keys"):
-            self._keys = data["keys"]
+        self._add_keys(data.get("keys"))
+        if any(k.get("kid") == kid for k in self._keys):
             return
         res = _http.request("GET", "%s/.well-known/monemee-license-keys.json" % self.base_url, timeout=self.timeout)
-        self._keys = (res or {}).get("keys") or []
-        if self._keys:
-            data["keys"] = self._keys
+        fetched = (res or {}).get("keys") or []
+        self._add_keys(fetched)
+        if fetched:
+            data["keys"] = fetched
             self._save(data)
 
     def _trusted(self, signed, key, device, max_age, data):
         try:
-            self._ensure_keys(data)
+            self._ensure_keys(data, (signed or {}).get("kid"))
         except MonemeeError:
             pass
         p = verify_signed(signed, self._keys)

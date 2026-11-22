@@ -32,7 +32,7 @@ def signed(fields):
     payload.update(fields)
     text = json.dumps(payload, sort_keys=True, separators=(",", ":"))
     sig = base64.urlsafe_b64encode(PRIV.sign(text.encode())).rstrip(b"=").decode()
-    return {"payload": text, "signature": sig, "kid": "mm-1", "alg": "EdDSA"}
+    return {"payload": text, "signature": sig, "kid": "test-1", "alg": "EdDSA"}
 
 
 class Fake:
@@ -56,7 +56,7 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         if self.path.endswith("monemee-license-keys.json"):
-            return self._json({"keys": [{"kid": "mm-1", "x": X, "kty": "OKP", "crv": "Ed25519"}]})
+            return self._json({"keys": [{"kid": "test-1", "x": X, "kty": "OKP", "crv": "Ed25519"}]})
         if self.path == "/api/v1/apps/me":
             return self._json({"success": True, "data": {"product_id": 7}})
         self._json({}, 404)

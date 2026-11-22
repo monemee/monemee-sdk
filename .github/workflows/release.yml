@@ -1,0 +1,101 @@
+# Veröffentlicht alle Pakete, wenn ein Versions-Tag (v0.1.0, v0.2.0, ...) gepusht wird.
+# Pakete, deren Version schon auf npm/PyPI liegt, werden übersprungen. So kann ein Tag
+# auch nur einzelne Pakete mit neuer Version veröffentlichen.
+#
+# Einmalig einrichten:
+#   npm:  Repo-Secret NPM_TOKEN (npmjs.com > Access Tokens > Granular, Schreibrecht für
+#         "monemee" und die Organisation @monemee)
+#   PyPI: Trusted Publisher (pypi.org > Publishing): Owner monemee, Repo monemee-sdk,
+#         Workflow release.yml, Environment pypi. Kein Token nötig.
+name: Release
+on:
+  push:
+    tags: ['v*']
+permissions:
+  contents: read
+jobs:
+  test:
+    uses: ./.github/workflows/test.yml
+
+  npm:
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write   # npm provenance
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+      - run: npm ci --no-audit --no-fund
+      - name: Publish packages
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          set -e
+          for dir in packages/client packages/node packages/react packages/cli; do
+            name=$(node -p "require('./$dir/package.json').name")
+            version=$(node -p "require('./$dir/package.json').version")
+            if npm view "$name@$version" version >/dev/null 2>&1; then
+              echo "$name@$version ist schon veröffentlicht, übersprungen"
+              continue
+            fi
+            cp LICENSE "$dir/LICENSE"
+            npm publish "./$dir" --access public --provenance
+          done
+
+  pypi:
+    needs: test
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      contents: read
+      id-token: write   # Trusted Publishing
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check version
+        id: check
+        working-directory: packages/python
+        run: |
+          version=$(python -c "import tomllib;print(tomllib.load(open('pyproject.toml','rb'))['project']['version'])")
+          if curl -sf "https://pypi.org/pypi/monemee/$version/json" >/dev/null; then
+            echo "monemee $version ist schon veröffentlicht, übersprungen"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Build
+        if: steps.check.outputs.skip != 'true'
+        working-directory: packages/python
+        run: |
+          cp ../../LICENSE LICENSE
+          pip install build
+          python -m build
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        if: steps.check.outputs.skip != 'true'
+        with:
+          packages-dir: packages/python/dist
+
+  github-release:
+    needs: [npm, pypi]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create GitHub release from CHANGELOG
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          version="${TAG#v}"
+          awk -v v="$version" '
+            $0 ~ "^## \\[" v "\\]" {on=1; next}
+            on && /^## \[/ {exit}
+            on {print}
+          ' CHANGELOG.md > notes.md
+          [ -s notes.md ] || echo "Release $TAG" > notes.md
+          gh release create "$TAG" --title "$TAG" --notes-file notes.md --verify-tag
