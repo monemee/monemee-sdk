@@ -8,7 +8,7 @@ version = "0.1.0"
 description = "License key validation with offline support for Python apps, plus paywall access checks for Flask, FastAPI and Django, powered by Monemee."
 readme = "README.md"
 license = "MIT"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dependencies = []
 keywords = ["monemee", "license key", "license validation", "software licensing", "paywall", "flask", "fastapi", "django", "offline licensing", "ed25519"]
 authors = [{ name = "Monemee", email = "info@monemee.com" }]

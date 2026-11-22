@@ -58,6 +58,6 @@ def monemee_webhook():
 
 Free test purchase (with a `mmapp_test_...` secret only): `redirect(monemee.test_buy_url(current_user.id, "http://localhost:5000/monemee/return"))`.
 
-Requires Python 3.9 or newer.
+Requires Python 3.10 or newer.
 
 MIT License
