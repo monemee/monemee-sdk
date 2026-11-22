@@ -1,6 +1,6 @@
 ---
 name: monemee-sell
-description: Use when the user wants to sell or monetize the app in the current project, add a paywall, or add license key validation with Monemee ("sell this app", "add a paywall", "check license keys", "unlock the pro version", "verkauf diese App über Monemee"). Sets up the Monemee SDK (CLI, @monemee/node, @monemee/react, @monemee/client, Python) correctly.
+description: Use when the user wants to sell or monetize the app in the current project, add a paywall, or add license key validation with Monemee ("sell this app", "add a paywall", "check license keys", "unlock the pro version", "verkauf diese App über Monemee"). Sets up the Monemee SDK (CLI, monemee-node, monemee-react, monemee-client, Python) correctly.
 ---
 
 # Sell an app with Monemee
@@ -21,7 +21,7 @@ Read `AGENTS.md` from https://github.com/monemee/monemee-sdk if it is not in the
 7. `npx monemee live` **only when the user explicitly asks**. Never commit the printed secrets.
 
 ## 3. Downloadable software
-- JavaScript: `npm i @monemee/client`, then `createLicense({ productId })`, `activate(key)` once, `check()` on every start.
+- JavaScript: `npm i monemee-client`, then `createLicense({ productId })`, `activate(key)` once, `check()` on every start.
 - Python: `pip install "monemee[offline]"`, then `License(product_id=...)`.
 - Product ID: from the dashboard or the MCP tool `create_software_product`.
 - Releases: add a workflow with `monemee/monemee-sdk/action@v1`.

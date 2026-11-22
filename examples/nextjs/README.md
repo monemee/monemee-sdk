@@ -2,7 +2,7 @@
 
 ```js
 // lib/monemee.js
-import createMonemee from '@monemee/node';
+import createMonemee from 'monemee-node';
 import { auth } from '@/auth';                          // Auth.js
 export const monemee = createMonemee({ getRef: async () => (await auth())?.user?.id });
 ```
@@ -23,7 +23,7 @@ export async function GET(request) {
 ```jsx
 // app/pro/page.jsx
 'use client';
-import { MonemeeProvider, AccessGate, BuyButton } from '@monemee/react';
+import { MonemeeProvider, AccessGate, BuyButton } from 'monemee-react';
 export default function Pro() {
   return (
     <MonemeeProvider>

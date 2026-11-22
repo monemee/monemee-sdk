@@ -23,8 +23,8 @@ The CLI logs you in through the browser, creates the product, writes your `.env`
 
 | Your app | Guide | Package |
 |---|---|---|
-| Web app with login (Express, Next.js, React) | [Add a paywall](web-apps/) | `@monemee/node`, `@monemee/react` |
-| Desktop or downloadable software (Electron, Tauri, extensions, CLIs) | [Validate license keys](license-keys/) | `@monemee/client` |
+| Web app with login (Express, Next.js, React) | [Add a paywall](web-apps/) | `monemee-node`, `monemee-react` |
+| Desktop or downloadable software (Electron, Tauri, extensions, CLIs) | [Validate license keys](license-keys/) | `monemee-client` |
 | Python tool or Flask, FastAPI, Django app | [Python](license-keys/#python) | `monemee` on PyPI |
 | Releases from GitHub | [Deliver updates](github-action/) | GitHub Action |
 

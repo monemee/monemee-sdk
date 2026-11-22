@@ -52,7 +52,7 @@ export interface AccessState {
 }
 
 export interface MonemeeProviderProps {
-  /** Pfad der @monemee/node-Routen · Standard '/monemee' */
+  /** Pfad der monemee-node-Routen · Standard '/monemee' */
   basePath?: string;
   /** Login-Header für Token-Logins, z. B. async () => ({ Authorization: `Bearer ${token}` }) */
   getHeaders?: () => Record<string, string> | Promise<Record<string, string>>;

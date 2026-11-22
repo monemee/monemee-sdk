@@ -23,7 +23,7 @@ Die CLI loggt dich im Browser ein, legt das Produkt an, schreibt die `.env` und 
 Für Apps mit Login (Express, Next.js, React) verknüpft Monemee den Kauf mit der Nutzer-ID deines Logins:
 
 ```js
-const monemee = require('@monemee/node')({ getRef: (req) => req.user?.id });
+const monemee = require('monemee-node')({ getRef: (req) => req.user?.id });
 app.use(monemee.routes());
 app.get('/api/pro', monemee.requireAccess(), handler);
 ```

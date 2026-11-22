@@ -1,4 +1,4 @@
-# @monemee/node
+# monemee-node
 
 Add a paywall to your Node.js web app and sell access through Monemee. Buyers pay on a hosted checkout, return to your app and are unlocked right away, without a database column of your own. Works with Express, Next.js and any runtime that uses Web-standard `Request` and `Response`.
 
@@ -11,14 +11,14 @@ npx monemee init        # logs in, creates the product, writes .env, wires up yo
 or manually:
 
 ```bash
-npm install @monemee/node
+npm install monemee-node
 ```
 
 ## Express
 
 ```js
 const express = require('express');
-const monemee = require('@monemee/node')({
+const monemee = require('monemee-node')({
   getRef: (req) => req.user?.id,                         // user ID from your login
   loginUrl: (back) => `/login?next=${encodeURIComponent(back)}`
 });
@@ -46,7 +46,7 @@ MONEMEE_WEBHOOK_SECRET=whsec_...     # optional, makes refunds take effect insta
 
 ```js
 // lib/monemee.js
-import createMonemee from '@monemee/node';
+import createMonemee from 'monemee-node';
 import { auth } from './auth';
 export const monemee = createMonemee({ getRef: async () => (await auth())?.user?.id });
 
@@ -70,7 +70,7 @@ Hono, Bun and Deno: `await monemee.handleRequest(request)` returns a `Response` 
 |---|---|
 | `GET /monemee/buy` | Redirects to checkout with the logged-in user attached |
 | `GET /monemee/return` | Return after purchase: unlocks, then redirects to `successPath` (`?monemee=unlocked`) |
-| `GET /monemee/access` | `{ access, plan, expires_at, buy_url }` for your frontend ([@monemee/react](../react)) |
+| `GET /monemee/access` | `{ access, plan, expires_at, buy_url }` for your frontend ([monemee-react](../react)) |
 | `GET /monemee/buy-url` | The same as JSON, for apps that log in with a browser token |
 | `POST /monemee/unlock` | `{ claim }` or `{ key }`: unlock from the browser or with a license key |
 | `POST /monemee/webhook` | Applies refunds and revocations instantly (needs `MONEMEE_WEBHOOK_SECRET`) |

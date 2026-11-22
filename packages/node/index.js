@@ -7,7 +7,7 @@ const { verifyWebhook } = require('./src/webhook');
 /**
  * Monemee für Web-Apps mit Login.
  *
- *   const monemee = require('@monemee/node')({ getRef: (req) => req.user?.id });
+ *   const monemee = require('monemee-node')({ getRef: (req) => req.user?.id });
  *   app.use(monemee.webhook());                                 // ganz oben, vor express.json()
  *   …express.json(), Session/Login…
  *   app.use(monemee.routes());                                  // nach deiner Login-Middleware

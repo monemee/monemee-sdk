@@ -15,12 +15,12 @@ updated: 2026-11-22
 npx monemee init
 ```
 
-This creates a product in test mode, writes `MONEMEE_APP_SECRET` and `MONEMEE_PRODUCT_ID` to `.env` and adds the integration to your server. Prefer to do it by hand? Install `@monemee/node` and create a test secret in the dashboard under *License keys > App connection*.
+This creates a product in test mode, writes `MONEMEE_APP_SECRET` and `MONEMEE_PRODUCT_ID` to `.env` and adds the integration to your server. Prefer to do it by hand? Install `monemee-node` and create a test secret in the dashboard under *License keys > App connection*.
 
 ## 2. Express
 
 ```js
-const monemee = require('@monemee/node')({
+const monemee = require('monemee-node')({
   getRef: (req) => req.user?.id,                       // stable user ID from your login
   loginUrl: (back) => `/login?next=${encodeURIComponent(back)}`
 });
@@ -41,7 +41,7 @@ app.get('/api/pro', monemee.requireAccess(), (req, res) => {
 
 ```js
 // lib/monemee.js
-import createMonemee from '@monemee/node';
+import createMonemee from 'monemee-node';
 import { auth } from '@/auth';
 export const monemee = createMonemee({ getRef: async () => (await auth())?.user?.id });
 
@@ -59,7 +59,7 @@ export async function GET(request) {
 ## 4. React paywall
 
 ```jsx
-import { MonemeeProvider, AccessGate, BuyButton, LicenseForm } from '@monemee/react';
+import { MonemeeProvider, AccessGate, BuyButton, LicenseForm } from 'monemee-react';
 
 <MonemeeProvider>
   <AccessGate fallback={<><BuyButton>Unlock Pro</BuyButton><LicenseForm /></>}>
@@ -100,7 +100,7 @@ Flask, FastAPI and Django use the [Python package](https://github.com/monemee/mo
 
 ## Reference
 
-- [@monemee/node README](https://github.com/monemee/monemee-sdk/tree/main/packages/node)
-- [@monemee/react README](https://github.com/monemee/monemee-sdk/tree/main/packages/react)
+- [monemee-node README](https://github.com/monemee/monemee-sdk/tree/main/packages/node)
+- [monemee-react README](https://github.com/monemee/monemee-sdk/tree/main/packages/react)
 - [Runnable Express and React template](https://github.com/monemee/monemee-sdk/tree/main/templates/express-react)
 - [HTTP API (OpenAPI)](https://github.com/monemee/monemee-sdk/blob/main/openapi.yaml)

@@ -1,15 +1,15 @@
-# @monemee/client
+# monemee-client
 
 License key validation for desktop and downloadable software: Electron, Tauri, browser extensions and Node CLIs. Activate a key once, then keep working offline thanks to responses signed with Ed25519. No dependencies.
 
 [Monemee SDK](https://github.com/monemee/monemee-sdk) · [Deutsch](https://github.com/monemee/monemee-sdk/blob/main/README.de.md) · [Documentation](https://dev.monemee.com)
 
 ```bash
-npm install @monemee/client
+npm install monemee-client
 ```
 
 ```js
-import { createLicense } from '@monemee/client';
+import { createLicense } from 'monemee-client';
 
 const license = createLicense({ productId: 123 });
 

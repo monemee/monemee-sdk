@@ -1,7 +1,7 @@
 # Monemee SDK: sell your app with license keys, a paywall and checkout
 
 [![npm](https://img.shields.io/npm/v/monemee?label=npx%20monemee)](https://www.npmjs.com/package/monemee)
-[![@monemee/node](https://img.shields.io/npm/v/@monemee/node?label=%40monemee%2Fnode)](https://www.npmjs.com/package/@monemee/node)
+[![monemee-node](https://img.shields.io/npm/v/monemee-node?label=monemee-node)](https://www.npmjs.com/package/monemee-node)
 [![PyPI](https://img.shields.io/pypi/v/monemee?label=pypi)](https://pypi.org/project/monemee/)
 [![Tests](https://github.com/monemee/monemee-sdk/actions/workflows/test.yml/badge.svg)](https://github.com/monemee/monemee-sdk/actions/workflows/test.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-2340D0)](LICENSE)
@@ -48,7 +48,7 @@ For apps where buyers log in, Monemee binds each purchase to the user ID of your
 
 ```js
 // server.js (Express)
-const monemee = require('@monemee/node')({ getRef: (req) => req.user?.id });
+const monemee = require('monemee-node')({ getRef: (req) => req.user?.id });
 
 app.use(monemee.webhook());        // before express.json()
 app.use(express.json());
@@ -62,7 +62,7 @@ app.get('/api/pro', monemee.requireAccess(), (req, res) => {
 
 ```jsx
 // App.jsx (React)
-import { MonemeeProvider, AccessGate, BuyButton } from '@monemee/react';
+import { MonemeeProvider, AccessGate, BuyButton } from 'monemee-react';
 
 <MonemeeProvider>
   <AccessGate fallback={<BuyButton>Unlock Pro</BuyButton>}>
@@ -71,7 +71,7 @@ import { MonemeeProvider, AccessGate, BuyButton } from '@monemee/react';
 </MonemeeProvider>
 ```
 
-Next.js uses one route file: `export const { GET, POST } = monemee.nextRoute();`. Apps that authenticate with a browser token (Firebase, Supabase, Auth0) pass it through `getHeaders`. Details are in the [@monemee/node](packages/node) and [@monemee/react](packages/react) docs. A complete runnable app lives in [templates/express-react](templates/express-react).
+Next.js uses one route file: `export const { GET, POST } = monemee.nextRoute();`. Apps that authenticate with a browser token (Firebase, Supabase, Auth0) pass it through `getHeaders`. Details are in the [monemee-node](packages/node) and [monemee-react](packages/react) docs. A complete runnable app lives in [templates/express-react](templates/express-react).
 
 ## License key validation for desktop and downloadable software
 
@@ -79,7 +79,7 @@ Buyers receive a license key by email. Your app activates it once per device and
 
 ```js
 // Electron, Tauri, browser extensions, Node CLIs
-import { createLicense } from '@monemee/client';
+import { createLicense } from 'monemee-client';
 
 const license = createLicense({ productId: 123 });
 await license.activate('MM-XXXX-XXXX-XXXX-XXXX');
@@ -97,7 +97,7 @@ if license.check().valid:
     run_pro()
 ```
 
-`check()` verifies the signature of every response and keeps the last valid one. Without a network connection the license stays valid for `graceDays` (default: 7). See [@monemee/client](packages/client) and the [Python package](packages/python).
+`check()` verifies the signature of every response and keeps the last valid one. Without a network connection the license stays valid for `graceDays` (default: 7). See [monemee-client](packages/client) and the [Python package](packages/python).
 
 ## Ship new versions from GitHub Releases
 
@@ -132,9 +132,9 @@ The file is replaced inside the existing product, so download links already sent
 | Package | Install | Use it for |
 |---|---|---|
 | [`monemee`](packages/cli) (CLI) | `npx monemee init` | Setup, test purchases, going live, diagnostics |
-| [`@monemee/node`](packages/node) | `npm i @monemee/node` | Server side of web apps: Express, Next.js, Hono and other Web-standard runtimes |
-| [`@monemee/react`](packages/react) | `npm i @monemee/react` | Paywall components and the `useAccess` hook |
-| [`@monemee/client`](packages/client) | `npm i @monemee/client` | License keys in Electron, Tauri, extensions and CLIs |
+| [`monemee-node`](packages/node) | `npm i monemee-node` | Server side of web apps: Express, Next.js, Hono and other Web-standard runtimes |
+| [`monemee-react`](packages/react) | `npm i monemee-react` | Paywall components and the `useAccess` hook |
+| [`monemee-client`](packages/client) | `npm i monemee-client` | License keys in Electron, Tauri, extensions and CLIs |
 | [`monemee`](packages/python) (Python) | `pip install monemee` | License keys and web access in Python, Flask, FastAPI, Django |
 | [GitHub Action](action) | `uses: monemee/monemee-sdk/action@v1` | Upload release files as new product versions |
 
@@ -162,7 +162,7 @@ Report vulnerabilities as described in [SECURITY.md](SECURITY.md).
 ## FAQ
 
 ### How do I add license key validation to my app?
-Install `@monemee/client` (JavaScript) or `monemee` (Python), call `activate(key)` once and `check()` on every start. Monemee handles key generation, delivery by email, device limits, expiry and refunds.
+Install `monemee-client` (JavaScript) or `monemee` (Python), call `activate(key)` once and `check()` on every start. Monemee handles key generation, delivery by email, device limits, expiry and refunds.
 
 ### Does license validation work offline?
 Yes. Every response is signed with Ed25519. The SDK stores the last valid response and accepts it without a connection for a configurable grace period, seven days by default. Tampered or foreign responses are rejected.

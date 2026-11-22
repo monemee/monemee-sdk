@@ -71,7 +71,7 @@ test('patchExpress (CommonJS): webhook vor express.json, routes nach Login und v
   assert.equal(patchExpress(file, 'cookie'), 'patched');
   const src = fs.readFileSync(file, 'utf8');
   const at = (s) => src.indexOf(s);
-  assert.ok(at("require('@monemee/node')") > at("require('cors')"));
+  assert.ok(at("require('monemee-node')") > at("require('cors')"));
   assert.ok(at('app.use(monemee.webhook())') < at('app.use(express.json())'));
   assert.ok(at('app.use(monemee.routes())') > at('app.use(session())'));
   assert.ok(at('app.use(monemee.routes())') < at("app.get('/'"));
@@ -92,7 +92,7 @@ test('patchExpress (ESM) nutzt import', () => {
   const file = path.join(dir, 'server.js');
   assert.equal(patchExpress(file, 'token'), 'patched');
   const src = fs.readFileSync(file, 'utf8');
-  assert.match(src, /import createMonemee from '@monemee\/node';/);
+  assert.match(src, /import createMonemee from 'monemee-node';/);
   assert.match(src, /verify the token from req\.headers\.authorization/);
   assert.doesNotMatch(src, /[äöüß]/);
 });

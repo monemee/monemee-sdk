@@ -1,6 +1,6 @@
-// npm i @monemee/client   ·   main process (Node 20+ / Electron 28+)
+// npm i monemee-client   ·   main process (Node 20+ / Electron 28+)
 import { app, BrowserWindow, ipcMain } from 'electron';
-import { createLicense } from '@monemee/client';
+import { createLicense } from 'monemee-client';
 
 const license = createLicense({ productId: 123, appName: 'meine-app', deviceName: process.platform });
 

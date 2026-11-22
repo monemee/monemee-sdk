@@ -1,5 +1,5 @@
 /**
- * @monemee/client – Lizenzschlüssel für Download-Software.
+ * monemee-client – Lizenzschlüssel für Download-Software.
  * Electron, Tauri, Browser-Erweiterungen, Node-CLIs. Keine Abhängigkeiten.
  *
  *   const license = createLicense({ productId: 123 });

@@ -1,8 +1,8 @@
 import { createContext, createElement as h, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 
 /**
- * @monemee/react – Freischalten im Frontend.
- * Spricht nur mit DEINEM Server (die Routen von @monemee/node unter basePath).
+ * monemee-react – Freischalten im Frontend.
+ * Spricht nur mit DEINEM Server (die Routen von monemee-node unter basePath).
  * Kein Secret im Browser.
  */
 
@@ -73,7 +73,7 @@ function stripClaimFromUrl() {
 
 /**
  * @param {object} props
- * @param {string} [props.basePath='/monemee']  Pfad der @monemee/node-Routen (gleiche Herkunft oder volle URL)
+ * @param {string} [props.basePath='/monemee']  Pfad der monemee-node-Routen (gleiche Herkunft oder volle URL)
  * @param {() => object|Promise<object>} [props.getHeaders]  z. B. async () => ({ Authorization: `Bearer ${await user.getIdToken()}` })
  * @param {boolean} [props.handleReturn=true]  ?monemee_claim=… automatisch einlösen
  * @param {(result) => void} [props.onUnlocked]

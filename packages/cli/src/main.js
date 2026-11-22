@@ -184,7 +184,7 @@ async function cmdInit(flags) {
     // Code
     const packages = [];
     if (project.framework === 'express') {
-      packages.push({ dir: project.serverDir, name: '@monemee/node' });
+      packages.push({ dir: project.serverDir, name: 'monemee-node' });
       const result = project.serverEntry ? patchExpress(project.serverEntry, project.login) : 'manual';
       if (result === 'patched') ok(t('express_patched', { file: rel(project.serverEntry), hint: dim(t('express_patched_hint')) }));
       else if (result === 'already') ok(t('express_already', { file: rel(project.serverEntry) }));
@@ -193,16 +193,16 @@ async function cmdInit(flags) {
         console.log(`\n${EXPRESS_SNIPPET(project.login)}\n`);
       }
     } else if (project.framework === 'next') {
-      packages.push({ dir: project.serverDir, name: '@monemee/node @monemee/react' });
+      packages.push({ dir: project.serverDir, name: 'monemee-node monemee-react' });
       for (const f of scaffoldNext(project)) ok(t('file_created', { file: rel(f) }));
     } else if (project.framework === 'python') {
       info(t('python_info'));
     } else {
-      packages.push({ dir: project.serverDir, name: '@monemee/node' });
+      packages.push({ dir: project.serverDir, name: 'monemee-node' });
       info(t('no_framework'));
     }
     if (project.react && project.framework !== 'next' && project.clientDir) {
-      packages.push({ dir: project.clientDir, name: '@monemee/react' });
+      packages.push({ dir: project.clientDir, name: 'monemee-react' });
       const f = scaffoldReactUpgrade(project.clientDir, { login: project.login, price: product.price });
       if (f) ok(t('react_created', { file: rel(f) }));
     }

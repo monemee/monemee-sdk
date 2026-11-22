@@ -4,7 +4,7 @@
 #
 # Einmalig einrichten:
 #   npm:  Repo-Secret NPM_TOKEN (npmjs.com > Access Tokens > Granular, Schreibrecht für
-#         "monemee" und die Organisation @monemee)
+#         "monemee", "monemee-node", "monemee-react", "monemee-client")
 #   PyPI: Trusted Publisher (pypi.org > Publishing): Owner monemee, Repo monemee-sdk,
 #         Workflow release.yml, Environment pypi. Kein Token nötig.
 name: Release

@@ -25,7 +25,7 @@ Goal: sell the app in the current project through **Monemee**. Follow these step
    // ... session / login ...
    app.use(monemee.routes());    // after the login, before your own routes
    ```
-4. Protect paid features: on the server `monemee.requireAccess()` (Express) or `await monemee.guard(request)` (Web/Next.js); in the frontend `<AccessGate fallback={<BuyButton />}>` from `@monemee/react`.
+4. Protect paid features: on the server `monemee.requireAccess()` (Express) or `await monemee.guard(request)` (Web/Next.js); in the frontend `<AccessGate fallback={<BuyButton />}>` from `monemee-react`.
 5. **Browser token login** (Firebase, Supabase, Auth0 SPA): `<MonemeeProvider getHeaders={...}>` with the login token. The return URL then points to a page of the app, not to `/monemee/return`.
 6. Test: start the app, log in, run `npx monemee test-buy` or click the test purchase button in the paywall.
 7. Go live only when the user asks: `npx monemee live --url https://...`. The printed values belong in the production environment variables, **never in the repository**.
@@ -33,7 +33,7 @@ Goal: sell the app in the current project through **Monemee**. Follow these step
 ## B. Downloadable software
 
 1. Create a product with license keys enabled in Monemee (dashboard or MCP tool `create_software_product`) and note the `product_id`.
-2. JavaScript, Electron, Tauri, extensions: `@monemee/client`. Python: `pip install "monemee[offline]"`.
+2. JavaScript, Electron, Tauri, extensions: `monemee-client`. Python: `pip install "monemee[offline]"`.
    ```js
    const license = createLicense({ productId: 123 });
    await license.activate(keyFromUser);          // once

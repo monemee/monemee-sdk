@@ -1,7 +1,7 @@
 require('dotenv').config({ path: require('path').join(__dirname, '.env') });
 const path = require('path');
 const express = require('express');
-const createMonemee = require('@monemee/node');
+const createMonemee = require('monemee-node');
 
 const app = express();
 

@@ -19,7 +19,7 @@ jobs:
           node-version: ${{ matrix.node }}
           cache: npm
       - run: npm ci --no-audit --no-fund
-      - run: npm test -w monemee -w @monemee/node -w @monemee/react -w @monemee/client -w monemee-action
+      - run: npm test -w monemee -w monemee-node -w monemee-react -w monemee-client -w monemee-action
   python:
     runs-on: ubuntu-latest
     strategy:

@@ -3,9 +3,9 @@
 > Sell an app through Monemee: hosted checkout, unlocking buyers inside the app after payment, and license key validation with offline support. For web apps with login and for downloadable software (Electron, Tauri, browser extensions, CLIs, Python). MIT licensed.
 
 - Setup: `npx monemee init` (browser login, product, .env, code integration, test mode)
-- Web app server: `@monemee/node` - `createMonemee({ getRef })`, `app.use(monemee.routes())`, `monemee.requireAccess()`, `monemee.nextRoute()`, `monemee.guard(request)`
-- Web app frontend: `@monemee/react` - `MonemeeProvider`, `AccessGate`, `BuyButton`, `LicenseForm`, `useAccess`
-- Downloadable software: `@monemee/client` (JavaScript) and `monemee` (Python) - `activate`, `check`, offline via Ed25519-signed responses
+- Web app server: `monemee-node` - `createMonemee({ getRef })`, `app.use(monemee.routes())`, `monemee.requireAccess()`, `monemee.nextRoute()`, `monemee.guard(request)`
+- Web app frontend: `monemee-react` - `MonemeeProvider`, `AccessGate`, `BuyButton`, `LicenseForm`, `useAccess`
+- Downloadable software: `monemee-client` (JavaScript) and `monemee` (Python) - `activate`, `check`, offline via Ed25519-signed responses
 - Releases: GitHub Action `monemee/monemee-sdk/action@v1`
 - HTTP API: `POST /api/v1/apps/{access,claim,test-claim}` (app secret), `POST /api/v1/licenses/{validate,activate,deactivate}` (public)
 - Buy link: `https://monemee.com/buy/<product_id>?ref=<user_id>`
@@ -15,9 +15,9 @@
 - [README](README.md)
 - [README (Deutsch)](README.de.md)
 - [Instructions for AI assistants](AGENTS.md)
-- [@monemee/node](packages/node/README.md)
-- [@monemee/react](packages/react/README.md)
-- [@monemee/client](packages/client/README.md)
+- [monemee-node](packages/node/README.md)
+- [monemee-react](packages/react/README.md)
+- [monemee-client](packages/client/README.md)
 - [Python](packages/python/README.md)
 - [GitHub Action](action/README.md)
 - [OpenAPI](openapi.yaml)

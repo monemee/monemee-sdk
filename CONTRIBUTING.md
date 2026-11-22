@@ -20,9 +20,9 @@ Requirements: Node.js 20 or newer, Python 3.9 or newer with `cryptography` for t
 | Folder | Package |
 |---|---|
 | `packages/cli` | `monemee` CLI |
-| `packages/node` | `@monemee/node` |
-| `packages/react` | `@monemee/react` |
-| `packages/client` | `@monemee/client` |
+| `packages/node` | `monemee-node` |
+| `packages/react` | `monemee-react` |
+| `packages/client` | `monemee-client` |
 | `packages/python` | `monemee` on PyPI |
 | `action` | GitHub Action |
 

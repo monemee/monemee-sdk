@@ -1,5 +1,5 @@
-// npm i @monemee/client   ·   service worker or popup (bundled)
-import { createLicense } from '@monemee/client';
+// npm i monemee-client   ·   service worker or popup (bundled)
+import { createLicense } from 'monemee-client';
 
 // chrome.storage instead of localStorage (service workers have none)
 const storage = {

@@ -1,15 +1,15 @@
-# @monemee/react
+# monemee-react
 
-React components for a paywall backed by Monemee: show content only to buyers, render a buy button and let customers enter a license key. Pairs with [@monemee/node](../node) on your server, and no secret ever reaches the browser.
+React components for a paywall backed by Monemee: show content only to buyers, render a buy button and let customers enter a license key. Pairs with [monemee-node](../node) on your server, and no secret ever reaches the browser.
 
 [Monemee SDK](https://github.com/monemee/monemee-sdk) · [Deutsch](https://github.com/monemee/monemee-sdk/blob/main/README.de.md) · [Documentation](https://dev.monemee.com)
 
 ```bash
-npm install @monemee/react
+npm install monemee-react
 ```
 
 ```jsx
-import { MonemeeProvider, AccessGate, BuyButton, LicenseForm } from '@monemee/react';
+import { MonemeeProvider, AccessGate, BuyButton, LicenseForm } from 'monemee-react';
 
 export default function App() {
   return (

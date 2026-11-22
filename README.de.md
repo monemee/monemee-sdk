@@ -47,7 +47,7 @@ Bei Apps mit Login verknüpft Monemee jeden Kauf mit der Nutzer-ID deines eigene
 
 ```js
 // server.js (Express)
-const monemee = require('@monemee/node')({ getRef: (req) => req.user?.id });
+const monemee = require('monemee-node')({ getRef: (req) => req.user?.id });
 
 app.use(monemee.webhook());        // vor express.json()
 app.use(express.json());
@@ -61,7 +61,7 @@ app.get('/api/pro', monemee.requireAccess(), (req, res) => {
 
 ```jsx
 // App.jsx (React)
-import { MonemeeProvider, AccessGate, BuyButton } from '@monemee/react';
+import { MonemeeProvider, AccessGate, BuyButton } from 'monemee-react';
 
 <MonemeeProvider>
   <AccessGate fallback={<BuyButton>Pro freischalten</BuyButton>}>
@@ -70,7 +70,7 @@ import { MonemeeProvider, AccessGate, BuyButton } from '@monemee/react';
 </MonemeeProvider>
 ```
 
-Für Next.js reicht eine Route-Datei: `export const { GET, POST } = monemee.nextRoute();`. Apps mit Token-Login im Browser (Firebase, Supabase, Auth0) geben das Token über `getHeaders` mit. Mehr dazu in [@monemee/node](packages/node) und [@monemee/react](packages/react), eine komplette lauffähige App liegt unter [templates/express-react](templates/express-react).
+Für Next.js reicht eine Route-Datei: `export const { GET, POST } = monemee.nextRoute();`. Apps mit Token-Login im Browser (Firebase, Supabase, Auth0) geben das Token über `getHeaders` mit. Mehr dazu in [monemee-node](packages/node) und [monemee-react](packages/react), eine komplette lauffähige App liegt unter [templates/express-react](templates/express-react).
 
 ## Lizenzschlüssel in Desktop-Apps und Download-Software prüfen
 
@@ -78,7 +78,7 @@ Käufer bekommen ihren Lizenzschlüssel per E-Mail. Deine App aktiviert ihn einm
 
 ```js
 // Electron, Tauri, Browser-Erweiterungen, Node-CLIs
-import { createLicense } from '@monemee/client';
+import { createLicense } from 'monemee-client';
 
 const license = createLicense({ productId: 123 });
 await license.activate('MM-XXXX-XXXX-XXXX-XXXX');
@@ -96,7 +96,7 @@ if license.check().valid:
     run_pro()
 ```
 
-`check()` prüft die Signatur jeder Antwort und merkt sich die letzte gültige. Ohne Internet bleibt die Lizenz `graceDays` lang gültig (Standard: 7 Tage). Siehe [@monemee/client](packages/client) und das [Python-Paket](packages/python).
+`check()` prüft die Signatur jeder Antwort und merkt sich die letzte gültige. Ohne Internet bleibt die Lizenz `graceDays` lang gültig (Standard: 7 Tage). Siehe [monemee-client](packages/client) und das [Python-Paket](packages/python).
 
 ## Neue Versionen aus GitHub Releases veröffentlichen
 
@@ -131,9 +131,9 @@ Die Datei wird im bestehenden Produkt ersetzt. Download-Links, die Käufer schon
 | Paket | Installation | Wofür |
 |---|---|---|
 | [`monemee`](packages/cli) (CLI) | `npx monemee init` | Einrichten, Testkauf, Live schalten, Prüfen |
-| [`@monemee/node`](packages/node) | `npm i @monemee/node` | Server von Web-Apps: Express, Next.js, Hono und andere Web-Standard-Runtimes |
-| [`@monemee/react`](packages/react) | `npm i @monemee/react` | Paywall-Komponenten und `useAccess`-Hook |
-| [`@monemee/client`](packages/client) | `npm i @monemee/client` | Lizenzschlüssel in Electron, Tauri, Erweiterungen und CLIs |
+| [`monemee-node`](packages/node) | `npm i monemee-node` | Server von Web-Apps: Express, Next.js, Hono und andere Web-Standard-Runtimes |
+| [`monemee-react`](packages/react) | `npm i monemee-react` | Paywall-Komponenten und `useAccess`-Hook |
+| [`monemee-client`](packages/client) | `npm i monemee-client` | Lizenzschlüssel in Electron, Tauri, Erweiterungen und CLIs |
 | [`monemee`](packages/python) (Python) | `pip install monemee` | Lizenzschlüssel und Web-Zugang in Python, Flask, FastAPI, Django |
 | [GitHub Action](action) | `uses: monemee/monemee-sdk/action@v1` | Release-Dateien als neue Produktversion hochladen |
 
@@ -161,7 +161,7 @@ Sicherheitslücken meldest du wie in [SECURITY.md](SECURITY.md) beschrieben.
 ## Häufige Fragen
 
 ### Wie baue ich eine Lizenzschlüssel-Prüfung in meine App ein?
-Installiere `@monemee/client` (JavaScript) oder `monemee` (Python), rufe einmal `activate(key)` auf und bei jedem Start `check()`. Schlüssel erzeugen, per E-Mail zustellen, Geräte-Limits, Laufzeiten und Erstattungen übernimmt Monemee.
+Installiere `monemee-client` (JavaScript) oder `monemee` (Python), rufe einmal `activate(key)` auf und bei jedem Start `check()`. Schlüssel erzeugen, per E-Mail zustellen, Geräte-Limits, Laufzeiten und Erstattungen übernimmt Monemee.
 
 ### Funktioniert die Lizenzprüfung offline?
 Ja. Jede Antwort ist mit Ed25519 signiert. Das SDK speichert die letzte gültige Antwort und akzeptiert sie ohne Internet für eine einstellbare Zeit, standardmäßig sieben Tage. Manipulierte oder fremde Antworten werden abgelehnt.

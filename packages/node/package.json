@@ -1,5 +1,5 @@
 {
-  "name": "@monemee/node",
+  "name": "monemee-node",
   "version": "0.1.0",
   "description": "Add a paywall to Express and Next.js apps: hosted checkout, unlock after purchase and access checks with Monemee, no database column needed.",
   "main": "index.js",

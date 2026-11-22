@@ -1,7 +1,7 @@
-// npm i express express-session @monemee/node   ·   MONEMEE_APP_SECRET in .env (npx monemee init)
+// npm i express express-session monemee-node   ·   MONEMEE_APP_SECRET in .env (npx monemee init)
 const express = require('express');
 const session = require('express-session');
-const monemee = require('@monemee/node')({
+const monemee = require('monemee-node')({
   getRef: (req) => req.session.userId,
   loginUrl: (back) => `/login?next=${encodeURIComponent(back)}`
 });

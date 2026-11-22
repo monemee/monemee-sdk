@@ -190,7 +190,7 @@ function createMonemee(options = {}) {
         return ctx.searchParams.get('format') === 'json' ? json(200, { url: target }) : redirect(target);
       }
 
-      // Zugangsstatus für das Frontend (@monemee/react)
+      // Zugangsstatus für das Frontend (monemee-react)
       if (route === '/access' && method === 'GET') {
         const ref = await resolveRef(ctx.req);
         if (!ref) return json(200, { access: false, reason: 'login_required', buy_url: `${basePath}/buy`, mode });

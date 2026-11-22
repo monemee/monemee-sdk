@@ -8,9 +8,9 @@ body:
       label: Package
       options:
         - monemee (CLI)
-        - "@monemee/node"
-        - "@monemee/react"
-        - "@monemee/client"
+        - "monemee-node"
+        - "monemee-react"
+        - "monemee-client"
         - monemee (Python)
         - GitHub Action
     validations:
@@ -19,7 +19,7 @@ body:
     id: version
     attributes:
       label: Package version and runtime
-      placeholder: "@monemee/node 0.1.0, Node 22, Express 4"
+      placeholder: "monemee-node 0.1.0, Node 22, Express 4"
     validations:
       required: true
   - type: textarea

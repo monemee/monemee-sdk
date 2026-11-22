@@ -111,7 +111,7 @@ export function ensureGitignored(dir, entry = '.env') {
 
 // ---------- Code ----------
 
-export const EXPRESS_SNIPPET = (login) => `const monemee = require('@monemee/node')({
+export const EXPRESS_SNIPPET = (login) => `const monemee = require('monemee-node')({
   getRef: (req) => req.user?.id,   // ← user ID from your login${login === 'token' ? '\n  // Token login: verify the token from req.headers.authorization here and return the user ID' : ''}
 });
 app.use(monemee.webhook());        // right after express(), before express.json()
@@ -131,7 +131,7 @@ app.use(monemee.routes());         // after your login, before your routes
  */
 export function patchExpress(file, login) {
   const src = fs.readFileSync(file, 'utf8');
-  if (src.includes('@monemee/node')) return 'already';
+  if (src.includes('monemee-node')) return 'already';
   const isEsm = /^\s*import\s.+from\s+['"]/m.test(src);
   const matches = [...src.matchAll(/^([ \t]*)(?:const|let|var)\s+(\w+)\s*=\s*express\(\s*\)[ \t]*;?[ \t]*$/gm)];
   if (matches.length !== 1) return 'manual';
@@ -148,7 +148,7 @@ export function patchExpress(file, login) {
   if (!routeMatch) return 'manual';
   const routeAt = afterCreate + routeMatch.index;
 
-  const requireLine = isEsm ? "import createMonemee from '@monemee/node';" : "const createMonemee = require('@monemee/node');";
+  const requireLine = isEsm ? "import createMonemee from 'monemee-node';" : "const createMonemee = require('monemee-node');";
   const createBlock = [
     '',
     `${indent}// Monemee: checkout, unlock after purchase, access checks (npx monemee init)`,
@@ -184,7 +184,7 @@ export function scaffoldNext(project) {
   const libFile = path.join(libDir, 'monemee.js');
   if (!fs.existsSync(libFile)) {
     fs.mkdirSync(libDir, { recursive: true });
-    fs.writeFileSync(libFile, `import createMonemee from '@monemee/node';
+    fs.writeFileSync(libFile, `import createMonemee from 'monemee-node';
 
 // User ID from your login, e.g. with Auth.js: (await auth())?.user?.id
 export const monemee = createMonemee({
@@ -216,7 +216,7 @@ export function scaffoldReactUpgrade(clientDir, { login, price }) {
   const headers = login === 'token'
     ? `\n  // Token login: send the login header, e.g. with Firebase:\n  // getHeaders={async () => ({ Authorization: \`Bearer \${await auth.currentUser.getIdToken()}\` })}`
     : '';
-  fs.writeFileSync(file, `import { MonemeeProvider, AccessGate, BuyButton, LicenseForm, useAccess } from '@monemee/react';
+  fs.writeFileSync(file, `import { MonemeeProvider, AccessGate, BuyButton, LicenseForm, useAccess } from 'monemee-react';
 
 /**
  * Pro area: renders children only after a purchase.

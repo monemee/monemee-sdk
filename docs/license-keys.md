@@ -20,11 +20,11 @@ updated: 2026-11-22
 ## JavaScript: Electron, Tauri, browser extensions, Node CLIs
 
 ```bash
-npm install @monemee/client
+npm install monemee-client
 ```
 
 ```js
-import { createLicense } from '@monemee/client';
+import { createLicense } from 'monemee-client';
 
 const license = createLicense({ productId: 123, graceDays: 7 });
 

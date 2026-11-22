@@ -5,7 +5,7 @@ permalink: /faq/
 updated: 2026-11-22
 faq:
   - q: How do I add license key validation to my app?
-    a: Install @monemee/client for JavaScript or monemee for Python, call activate(key) once and check() on every start. Monemee generates and emails the keys and handles device limits, expiry dates and refunds.
+    a: Install monemee-client for JavaScript or monemee for Python, call activate(key) once and check() on every start. Monemee generates and emails the keys and handles device limits, expiry dates and refunds.
   - q: Does license validation work offline?
     a: Yes. Every response is signed with Ed25519. The SDK stores the last valid response and accepts it without a connection for a configurable grace period, seven days by default. Tampered or foreign responses are rejected.
   - q: Do I need my own database to track who paid?
