@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import crypto from 'node:crypto';
-import { createLicense, verifySigned } from '../src/index.js';
+import { createLicense, verifySigned, ed25519Supported, storageDir } from '../src/index.js';
 
 const { privateKey, publicKey } = crypto.generateKeyPairSync('ed25519');
 const JWK = { kid: 'test-1', x: publicKey.export({ format: 'jwk' }).x };
@@ -128,4 +128,61 @@ test('verifySigned: richtige Signatur → Payload, unbekannte kid → null', asy
   const signed = signedFor({});
   assert.equal((await verifySigned(signed, [JWK])).plan, 'pro');
   assert.equal(await verifySigned({ ...signed, kid: 'anders' }, [JWK]), null);
+});
+
+/** Simuliert eine Laufzeit ohne Ed25519 in WebCrypto (ältere Browser/Webviews). */
+async function withoutEd25519(fn) {
+  const subtle = globalThis.crypto.subtle;
+  const orig = subtle.importKey;
+  subtle.importKey = async function (format, keyData, algorithm, ...rest) {
+    if ((algorithm?.name || algorithm) === 'Ed25519') throw new DOMException('Unrecognized algorithm name', 'NotSupportedError');
+    return orig.call(this, format, keyData, algorithm, ...rest);
+  };
+  try { return await fn(); } finally { delete subtle.importKey; }
+}
+
+test('ohne Ed25519: online gilt die Antwort (kein invalid_signature), aber kein Offline-Nachweis', async () => {
+  await withoutEd25519(async () => {
+    assert.equal(await ed25519Supported(), false);
+    const s = server();
+    const storage = memory();
+    const lic = createLicense({ productId: PID, storage, fetch: s.fetch, publicKeys: [JWK] });
+    assert.equal((await lic.activate(KEY)).valid, true);
+    const c = await lic.check();
+    assert.deepEqual({ valid: c.valid, reason: c.reason }, { valid: true, reason: null });
+    assert.equal(JSON.parse(storage.m.get('state')).signed, null);
+    s.offline = true;
+    const off = await lic.check();
+    assert.deepEqual({ valid: off.valid, reason: off.reason }, { valid: false, reason: 'offline' });
+  });
+  assert.equal(await ed25519Supported(), true);
+});
+
+test('mit Ed25519: falsch signierte Online-Antwort → invalid_signature, nichts gespeichert', async () => {
+  const s = server();
+  const storage = memory();
+  const lic = createLicense({ productId: PID, storage, fetch: s.fetch, publicKeys: [JWK] });
+  await lic.activate(KEY);
+  const before = storage.m.get('state');
+  const { privateKey: evil } = crypto.generateKeyPairSync('ed25519');
+  const evilFetch = async (url, init) => {
+    const res = await s.fetch(url, init);
+    if (!url.endsWith('/validate')) return res;
+    const json = await res.json();
+    json.data.signed = signedFor({ device_id: JSON.parse(init.body).device_id }, evil);
+    return Response.json(json);
+  };
+  const lic2 = createLicense({ productId: PID, storage, fetch: evilFetch, publicKeys: [JWK] });
+  const r = await lic2.check();
+  assert.deepEqual({ valid: r.valid, reason: r.reason }, { valid: false, reason: 'invalid_signature' });
+  assert.equal(storage.m.get('state'), before);
+  assert.ok(lic);
+});
+
+test('storageDir: Windows nutzt %APPDATA%, sonst XDG_CONFIG_HOME bzw. ~/.config', async () => {
+  const path = await import('node:path');
+  assert.equal(storageDir('monemee-42', { path: path.win32, home: 'C:\\Users\\a', platform: 'win32', env: { APPDATA: 'C:\\Users\\a\\AppData\\Roaming' } }), 'C:\\Users\\a\\AppData\\Roaming\\monemee-42');
+  assert.equal(storageDir('monemee-42', { path: path.win32, home: 'C:\\Users\\a', platform: 'win32', env: {} }), 'C:\\Users\\a\\.config\\monemee-42');
+  assert.equal(storageDir('monemee-42', { path: path.posix, home: '/home/a', platform: 'linux', env: { APPDATA: '/x' } }), '/home/a/.config/monemee-42');
+  assert.equal(storageDir('monemee-42', { path: path.posix, home: '/home/a', platform: 'darwin', env: { XDG_CONFIG_HOME: '/cfg' } }), '/cfg/monemee-42');
 });

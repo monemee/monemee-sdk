@@ -47,12 +47,27 @@ async function serve(monemee, { user = 'user_1', extra } = {}) {
   return { base, close: () => new Promise((r) => server.close(r)) };
 }
 
-test('Konfiguration: fehlendes oder kaputtes Secret → klare Fehlermeldung', () => {
+test('Konfiguration: fehlendes oder kaputtes Secret → kein Fehler beim Erzeugen, klare Meldung beim Gebrauch, 503', async () => {
   const saved = process.env.MONEMEE_APP_SECRET;
   delete process.env.MONEMEE_APP_SECRET;
   try {
-    assert.throws(() => createMonemee(), /MONEMEE_APP_SECRET fehlt/);
-    assert.throws(() => createMonemee({ appSecret: 'monemee_falsch' }), /ungültig/);
+    const fetch = fakeFetch({ '/access': { access: true } });
+    const m = createMonemee({ fetch, getRef: () => 'u1' }); // z. B. während `next build` ohne .env
+    assert.equal(m.mode, 'live');
+    await assert.rejects(m.hasAccess('u1'), /MONEMEE_APP_SECRET fehlt/);
+    await assert.rejects(createMonemee({ appSecret: 'monemee_falsch' }).buyUrl(), /ungültig/);
+
+    const res = await m.nextRoute().GET(new Request('https://app.example.com/monemee/access'));
+    assert.equal(res.status, 503);
+    const body = await res.json();
+    assert.equal(body.error, 'monemee_not_configured');
+    assert.match(body.message, /MONEMEE_APP_SECRET/);
+
+    const { response, access } = await m.guard(new Request('https://app.example.com/api'));
+    assert.equal(access, null);
+    assert.equal(response.status, 503);
+    assert.equal((await response.json()).error, 'monemee_not_configured');
+    assert.equal(fetch.calls.length, 0);
   } finally {
     if (saved) process.env.MONEMEE_APP_SECRET = saved;
   }
@@ -329,6 +344,14 @@ test('Web-Standard: nextRoute() und guard()', async () => {
   const { response, access } = await m.guard(new Request('https://app.example.com/api', { headers: { 'x-user': 'u9' } }));
   assert.equal(response, null);
   assert.equal(access.plan, 'pro');
+});
+
+test('guard(): Monemee nicht erreichbar → 503 statt Exception (fail closed wie requireAccess)', async () => {
+  const m = createMonemee({ appSecret: SECRET, fetch: async () => { throw new Error('ECONNREFUSED'); }, getRef: () => 'u1' });
+  const { response, access } = await m.guard(new Request('https://app.example.com/api'));
+  assert.equal(access, null);
+  assert.equal(response.status, 503);
+  assert.equal((await response.json()).error, 'monemee_unavailable');
 });
 
 // fetch ohne automatische Weiterleitung

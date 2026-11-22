@@ -88,7 +88,7 @@ Start your app, log in and run:
 npx monemee test-buy
 ```
 
-You go through the real flow, including the return to your app, with a test license. Test licenses are only visible to test secrets. More in [Test the purchase flow without paying]({{ '/guides/test-purchase-flow/' | relative_url }}).
+The test purchase skips the payment step; everything from there on is real, including the return to your app and the unlock, with a test license. Test licenses are only visible to test secrets. More in [Test the purchase flow without paying]({{ '/guides/test-purchase-flow/' | relative_url }}).
 
 ## 6. Go live
 

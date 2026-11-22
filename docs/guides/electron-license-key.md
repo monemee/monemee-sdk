@@ -8,7 +8,7 @@ faq:
   - q: Should license checks run in the Electron main process or the renderer?
     a: In the main process. It has file system access for the license state, it is not reloaded with the window, and the renderer only needs three functions exposed through a preload script with contextBridge.
   - q: Where does monemee-client store the license in Electron?
-    a: Wherever the storage option points. Without it, the main process writes to ~/.config/monemee-<productId>/license.json. Passing a small adapter that writes to app.getPath('userData') keeps the file next to your other app data.
+    a: Wherever the storage option points. Without it, the main process writes to ~/.config/monemee-<productId>/license.json (%APPDATA%\monemee-<productId>\license.json on Windows). Passing a small adapter that writes to app.getPath('userData') keeps the file next to your other app data.
   - q: What happens when the user is offline?
     a: check() verifies the last signed response stored on disk and returns valid with offline set to true for up to graceDays, seven by default. After that it returns reason offline until the app can reach Monemee again.
 ---

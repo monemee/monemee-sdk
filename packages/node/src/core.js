@@ -28,13 +28,17 @@ const CACHE_EVENTS = new Set(['license.created', 'license.revoked', 'license.act
 function createMonemee(options = {}) {
   const env = process.env;
   const appSecret = options.appSecret || env.MONEMEE_APP_SECRET;
-  if (!appSecret || !SECRET_REGEX.test(appSecret)) {
-    throw new MonemeeError(
+  // Kein Fehler beim Erzeugen (sonst bricht z. B. `next build` ohne .env ab) – erst beim ersten Gebrauch.
+  // Die eingebauten Routen, requireAccess() und guard() antworten dann mit 503.
+  const configError = !appSecret || !SECRET_REGEX.test(appSecret)
+    ? new MonemeeError(
       'MONEMEE_APP_SECRET fehlt oder ist ungültig. Anlegen mit `npx monemee init` oder im Dashboard unter Lizenzschlüssel → App-Anbindung.',
       { code: 'CONFIG' }
-    );
-  }
-  const mode = appSecret.startsWith('mmapp_test_') ? 'test' : 'live';
+    )
+    : null;
+  const assertConfigured = () => { if (configError) throw configError; };
+  // Ohne gültiges Secret 'live' – Test-Routen bleiben dann aus
+  const mode = !configError && appSecret.startsWith('mmapp_test_') ? 'test' : 'live';
   const baseUrl = String(options.baseUrl || env.MONEMEE_BASE_URL || 'https://monemee.com').replace(/\/+$/, '');
   const basePath = `/${String(options.basePath || '/monemee').replace(/^\/+|\/+$/g, '')}`;
   const successPath = options.successPath || '/';
@@ -77,6 +81,7 @@ function createMonemee(options = {}) {
 
   /** Vollständiges Zugangs-Ergebnis { access, reason, plan, expires_at, … } */
   async function access(ref) {
+    assertConfigured();
     const r = normalizeRef(ref);
     return cached(r) || remember(r, await api.access(r));
   }
@@ -88,6 +93,7 @@ function createMonemee(options = {}) {
 
   /** Rücksprung-Token (claim) oder Lizenzschlüssel (key) einlösen und an ref binden. */
   async function unlock({ claim, key, ref }) {
+    assertConfigured();
     const r = normalizeRef(ref);
     if (!claim && !key) throw new MonemeeError('claim oder key ist erforderlich', { code: 'INVALID_INPUT' });
     const result = await api.claim({ claim, key, ref: r });
@@ -98,6 +104,7 @@ function createMonemee(options = {}) {
 
   /** Kauf-Link, optional schon mit dem Nutzer verknüpft. */
   async function buyUrl(ref) {
+    assertConfigured();
     if (!productId) productId = (await api.me()).product_id;
     const url = new URL(`${baseUrl}/buy/${productId}`);
     if (ref !== undefined && ref !== null && ref !== '') url.searchParams.set('ref', normalizeRef(ref));
@@ -106,6 +113,7 @@ function createMonemee(options = {}) {
 
   /** Nur Testmodus: Testkauf ohne Geld. Liefert die Rücksprung-URL mit Token. */
   async function testBuyUrl(ref, { returnUrl } = {}) {
+    assertConfigured();
     if (mode !== 'test') throw new MonemeeError('Testkäufe gehen nur mit einem Test-Secret (mmapp_test_…)', { code: 'TEST_ONLY' });
     const result = await api.testClaim({ ref: normalizeRef(ref), returnUrl });
     return result.redirectUrl;
@@ -113,6 +121,7 @@ function createMonemee(options = {}) {
 
   /** Webhook prüfen (roher Body!), Cache leeren, onEvent aufrufen. */
   async function handleWebhook(rawBody, signatureHeader) {
+    assertConfigured();
     const event = verifyWebhook(rawBody, signatureHeader, webhookSecret);
     const ref = event && event.data && event.data.external_ref;
     if (ref && CACHE_EVENTS.has(event.event)) cache.delete(ref);
@@ -146,6 +155,7 @@ function createMonemee(options = {}) {
     if (!ctx.pathname.startsWith(`${basePath}/`)) return null;
     const route = ctx.pathname.slice(basePath.length);
     const method = ctx.method.toUpperCase();
+    if (configError) return json(503, { error: 'monemee_not_configured', message: configError.message });
 
     try {
       // Rücksprung nach dem Kauf: ?monemee_claim=mmc_…
@@ -246,6 +256,7 @@ function createMonemee(options = {}) {
    * @returns {Promise<{ok: true, access} | {ok: false, response}>}
    */
   async function checkAccess(req, refFn) {
+    assertConfigured();
     const ref = refFn ? await refFn(req) : await resolveRef(req);
     if (ref === undefined || ref === null || ref === '') {
       return { ok: false, response: json(401, { error: 'login_required' }) };

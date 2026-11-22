@@ -1,6 +1,6 @@
 {
   "name": "monemee-react",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "React paywall components for Monemee: AccessGate, BuyButton, LicenseForm and the useAccess hook.",
   "type": "module",
   "main": "src/index.js",

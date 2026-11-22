@@ -57,7 +57,7 @@ export const { GET, POST } = monemee.nextRoute();
 // app/api/pro/route.js
 export async function GET(request) {
   const { response, access } = await monemee.guard(request);
-  if (response) return response;            // 401 or 402 with buy_url
+  if (response) return response;            // 401, 402 with buy_url, or 503 if Monemee is unreachable
   return Response.json({ plan: access.plan });
 }
 ```
@@ -74,7 +74,7 @@ Hono, Bun and Deno: `await monemee.handleRequest(request)` returns a `Response` 
 | `GET /monemee/buy-url` | The same as JSON, for apps that log in with a browser token |
 | `POST /monemee/unlock` | `{ claim }` or `{ key }`: unlock from the browser or with a license key |
 | `POST /monemee/webhook` | Applies refunds and revocations instantly (needs `MONEMEE_WEBHOOK_SECRET`) |
-| `GET /monemee/test-buy` | Test secret only: free test purchase through the real flow |
+| `GET /monemee/test-buy` | Test secret only: free test purchase that skips the payment step; everything from the return on is real |
 
 ## Without the routes
 
@@ -105,7 +105,8 @@ await monemee.unlock({ key, ref: userId });   // redeem a license key
 - **Caching.** Results are cached for five minutes. With webhooks a refund applies immediately, without them within five minutes.
 - **Scope of the secret.** The app secret belongs on the server. It can only check and unlock access, for exactly one product.
 - **No sharing.** A redeemed license is bound to one user and cannot unlock a second account.
-- **Fail closed.** If Monemee is unreachable, `requireAccess` answers 503 instead of granting access.
+- **Fail closed.** If Monemee is unreachable, `requireAccess` and `guard` answer 503 instead of granting access.
+- **Missing secret.** `createMonemee()` does not throw when `MONEMEE_APP_SECRET` is missing (so `next build` works without a `.env`). The built-in routes, `requireAccess` and `guard` then answer 503 with `monemee_not_configured`, and direct calls such as `hasAccess()` throw an error naming the variable.
 - **TypeScript.** Type definitions are included.
 
 MIT License

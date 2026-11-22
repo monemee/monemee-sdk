@@ -16,10 +16,12 @@ npx monemee init
 4. writes `MONEMEE_APP_SECRET` (test mode) and `MONEMEE_PRODUCT_ID` to `.env` and adds `.env` to `.gitignore`,
 5. wires Monemee into your code: Express server, Next.js route, React paywall.
 
+In an Express server file, `init` also adds `try { process.loadEnvFile(); } catch {}` at the top so `.env` is loaded without a dependency (unless the file already uses `dotenv` or `loadEnvFile`). This needs Node.js 20.12 or newer for your app; on older versions it does nothing, so load `.env` yourself, for example with `dotenv`.
+
 Then:
 
 ```bash
-npx monemee test-buy     # free test purchase through the real flow
+npx monemee test-buy     # free test purchase: skips payment, the return and unlock are real
 npx monemee live         # return URL, live secret and webhook for production
 npx monemee doctor       # checks your setup
 ```
@@ -31,6 +33,8 @@ npx monemee doctor       # checks your setup
 | `--title`, `--price` | Create a new product without prompts |
 | `--url <https://...>` | (`live`) Address of your production app |
 | `--ref <id>` | (`test-buy`) Test purchase for a specific user ID |
+| `--port <n>` | (`test-buy`) Port of your local app. Defaults to the port found in your server file, otherwise 3000 |
+| `--return-path <path>` | (`live`) Where buyers land after the purchase, for example `/monemee/return` (cookie login, default) or `/` (token login) |
 | `--skip-install` | Print the install command instead of running it |
 | `--base-url <url>` | Use another Monemee instance, for example staging |
 | `--lang <en\|de>` | Output language. Defaults to `MONEMEE_LANG`, then your system locale (German if it starts with `de`, otherwise English) |

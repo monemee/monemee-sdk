@@ -121,12 +121,23 @@ app.use(monemee.routes());         // after your login, before your routes
 // Example: protected route
 // app.get('/api/pro', monemee.requireAccess(), handler);`;
 
+// Lädt .env ohne Abhängigkeit (Node >= 20.12); auf älterem Node oder ohne .env passiert nichts.
+export const ENV_LOADER = 'try { process.loadEnvFile(); } catch {} // Monemee: loads .env (Node >= 20.12)';
+
+/** Setzt ENV_LOADER an den Dateianfang (nach Shebang/'use strict'), außer die Datei lädt .env schon selbst. */
+export function addEnvLoader(src) {
+  if (/dotenv|loadEnvFile/.test(src)) return src;
+  const prologue = src.match(/^(?:#![^\n]*\n)?(?:[ \t]*(['"])use strict\1;?[ \t]*\n)?/)[0];
+  return `${prologue}${ENV_LOADER}\n${src.slice(prologue.length)}`;
+}
+
 /**
  * Bindet Monemee in eine Express-App ein – nur wenn eindeutig:
  *  - direkt nach `const app = express()`: Monemee anlegen + app.use(monemee.webhook())
  *    (der Webhook braucht den rohen Body, also vor express.json())
  *  - direkt vor der ersten eigenen Route (app.get/post/…, app.use('/pfad', …), app.listen):
  *    app.use(monemee.routes()) – dann ist deine Login-Middleware schon gelaufen
+ *  - ganz oben: ENV_LOADER, damit MONEMEE_APP_SECRET aus .env ankommt (außer dotenv/loadEnvFile ist schon da)
  * @returns {'patched'|'already'|'manual'}
  */
 export function patchExpress(file, login) {
@@ -172,6 +183,7 @@ export function patchExpress(file, login) {
   } else {
     out = `${requireLine}\n${out}`;
   }
+  out = addEnvLoader(out);
   fs.writeFileSync(file, out);
   return 'patched';
 }

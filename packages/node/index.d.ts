@@ -64,13 +64,13 @@ export interface Monemee<R = any> {
   routes(): NodeMiddleware;
   /** Nur POST /monemee/webhook – ganz oben, VOR express.json() (braucht den rohen Body) */
   webhook(): NodeMiddleware;
-  /** Express: nur mit Zugang weiter (req.monemee = AccessResult), sonst 401/402 */
+  /** Express: nur mit Zugang weiter (req.monemee = AccessResult), sonst 401/402 (503 wenn Monemee nicht erreichbar) */
   requireAccess(getRef?: RefResolver<R>): NodeMiddleware;
   /** Web-Standard: Request → Response | null */
   handleRequest(request: Request): Promise<Response | null>;
   /** Next.js App Router: export const { GET, POST } = monemee.nextRoute() */
   nextRoute(): { GET: (request: Request) => Promise<Response>; POST: (request: Request) => Promise<Response> };
-  /** Web-Handler: const { response } = await monemee.guard(request); if (response) return response; */
+  /** Web-Handler: const { response } = await monemee.guard(request); if (response) return response; (401/402/503) */
   guard(request: Request, getRef?: RefResolver<Request>): Promise<{ response: Response | null; access: AccessResult | null }>;
 }
 

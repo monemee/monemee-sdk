@@ -52,6 +52,18 @@ def _b64url(data):
     return base64.urlsafe_b64decode(data + "=" * (-len(data) % 4))
 
 
+def ed25519_available():
+    """True, wenn Ed25519-Signaturen geprüft werden können (Paket ``cryptography``, Extra ``monemee[offline]``).
+
+    Ohne funktionieren Online-Prüfungen weiter (die TLS-Antwort zählt), aber es gibt keine Offline-Frist.
+    """
+    try:
+        from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey  # noqa: F401
+    except ImportError:
+        return False
+    return True
+
+
 def verify_signed(signed, public_keys):
     """Prüft signed["signature"] über den exakten String signed["payload"]. Payload-Dict oder None."""
     if not isinstance(signed, dict) or not isinstance(signed.get("payload"), str):
@@ -188,7 +200,9 @@ class License:
         res = self._post("activate", body)
         if res.get("valid"):
             data = self._load()
-            data.update({"v": STORE_VERSION, "key": key, "signed": res.get("signed"), "checked_at": self._now()})
+            # Ohne Ed25519 nicht prüfbar → nicht als Offline-Nachweis speichern
+            proof = res.get("signed") if ed25519_available() else None
+            data.update({"v": STORE_VERSION, "key": key, "signed": proof, "checked_at": self._now()})
             self._save(data)
         return self._result(res, activations=res.get("activations"))
 
@@ -209,7 +223,11 @@ class License:
                 return LicenseResult(valid=False, reason="offline", offline=True)
             return self._result(p, offline=True)
 
-        if res.get("signed"):
+        if res.get("signed") and not ed25519_available():
+            # Signatur nicht prüfbar: die TLS-Antwort zählt, aber ohne Offline-Nachweis
+            data.update({"signed": None, "checked_at": self._now()})
+            self._save(data)
+        elif res.get("signed"):
             p = self._trusted(res["signed"], key, device, 600, data)
             if p and bool(p.get("valid")) == bool(res.get("valid")):
                 data.update({"signed": res["signed"], "checked_at": self._now()})

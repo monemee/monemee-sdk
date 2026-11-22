@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "monemee"
-version = "0.1.0"
+version = "0.1.1"
 description = "License key validation with offline support for Python apps, plus paywall access checks for Flask, FastAPI and Django, powered by Monemee."
 readme = "README.md"
 license = "MIT"

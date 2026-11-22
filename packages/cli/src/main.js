@@ -268,6 +268,9 @@ async function cmdTestBuy(flags) {
   openBrowser(redirectUrl);
 }
 
+/** Webhook-Ereignisse, die `monemee live` abonniert (Kauf, Erstattung, Sperre, Aktivierung). */
+export const LIVE_WEBHOOK_EVENTS = ['sale.completed', 'license.created', 'license.revoked', 'license.activated'];
+
 async function cmdLive(flags) {
   const base = baseUrl(flags);
   const ask = createAsk(flags);
@@ -301,7 +304,7 @@ async function cmdLive(flags) {
       try {
         webhook = await api.createWebhook({
           url: `${origin}/monemee/webhook`,
-          events: ['license.created', 'license.revoked', 'license.activated'],
+          events: LIVE_WEBHOOK_EVENTS,
           description: 'monemee CLI'
         });
         ok(t('webhook_ok', { url: `${origin}/monemee/webhook` }));

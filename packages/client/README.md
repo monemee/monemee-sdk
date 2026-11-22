@@ -36,7 +36,7 @@ When a buyer is refunded, the next online check returns `reason: 'revoked'`. Tam
 |---|---|---|
 | `productId` | – | Your Monemee product ID |
 | `graceDays` | `7` | How long the app keeps working offline |
-| `storage` | `localStorage`, or a file in `~/.config/monemee-<id>/` on Node | Custom storage `{ get, set, remove }`, for example `chrome.storage` |
+| `storage` | `localStorage`, or a file in `~/.config/monemee-<id>/` on Node (`%APPDATA%\monemee-<id>\` on Windows) | Custom storage `{ get, set, remove }`, for example `chrome.storage` |
 | `deviceName` | – | Shown in the device list of your dashboard |
 | `baseUrl` | `https://monemee.com` | |
 
@@ -45,6 +45,14 @@ When a buyer is refunded, the next online check returns `reason: 'revoked'`. Tam
 **Testing:** the dashboard issues test keys under *License keys > Test key*. They are valid for 30 days and need no purchase.
 
 **Requirements:** WebCrypto with Ed25519 (Node 20+, Electron 28+, current browsers). Where it is missing, online checks still work, but there is no offline grace period.
+
+## CommonJS / Electron main process
+
+`monemee-client` is an ES module. From CommonJS code, such as an Electron main process without `"type": "module"`, load it with a dynamic import:
+
+```js
+const { createLicense } = await import('monemee-client');
+```
 
 Python apps use the [monemee Python package](../python), which works the same way.
 

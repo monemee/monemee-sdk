@@ -20,4 +20,4 @@ from .app import App, AccessResult
 from .webhook import verify_webhook
 
 __all__ = ["License", "LicenseResult", "App", "AccessResult", "verify_webhook", "MonemeeError"]
-__version__ = "0.1.0"
+__version__ = "0.1.1"

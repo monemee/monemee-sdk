@@ -39,5 +39,7 @@ export interface License {
 
 export function createLicense(options: LicenseOptions): License;
 export function verifySigned(signed: { payload: string; signature: string; kid: string }, publicKeys: Array<{ kid: string; x: string }>): Promise<Record<string, unknown> | null>;
+/** True when this runtime can verify Ed25519 signatures (WebCrypto). Without it, online checks still work but there is no offline grace. */
+export function ed25519Supported(): Promise<boolean>;
 export const BUNDLED_PUBLIC_KEYS: Array<{ kid: string; x: string }>;
 export class LicenseError extends Error { code: string; }

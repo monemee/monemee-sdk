@@ -4,7 +4,7 @@ import urllib.request
 
 from ._errors import MonemeeError
 
-USER_AGENT = "monemee-python/0.1.0"
+USER_AGENT = "monemee-python/0.1.1"
 
 
 def request(method, url, body=None, token=None, timeout=8):

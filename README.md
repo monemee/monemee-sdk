@@ -16,7 +16,9 @@ It is built for developers who would rather ship features than build billing: in
 npx monemee init
 ```
 
-The CLI logs you in through the browser, creates the product, writes your `.env` and wires Monemee into your code. Everything starts in test mode, so you can run the full purchase flow without real money.
+![npx monemee init: detects the project, creates the product, writes .env and adds a paywall in test mode](.github/demo.svg)
+
+The CLI logs you in through the browser, creates the product, writes your `.env` and wires Monemee into your code. Everything starts in test mode, so you can try the purchase flow without real money: a test purchase skips the payment step, and everything from the return to your app on is real.
 
 ## Contents
 
@@ -39,7 +41,7 @@ The CLI logs you in through the browser, creates the product, writes your `.env`
 | Access checks | `requireAccess()` on the server, `<AccessGate>` in React. Refunds revoke access automatically. |
 | License keys | Device activation limits, expiry dates and plan names for downloadable software. |
 | Offline licensing | Every license response is signed with Ed25519, so apps keep working without a connection for a grace period. |
-| Test mode | Separate test and live secrets. Test purchases cost nothing and behave exactly like real ones. |
+| Test mode | Separate test and live secrets. Test purchases cost nothing: they skip the payment step, and from the return on they behave exactly like real ones. |
 | Release automation | A GitHub Action uploads each release; existing buyers get the new version through their links. |
 | AI assistant support | [`AGENTS.md`](AGENTS.md) and ready-made skills let Claude Code, Cursor or Copilot do the setup. |
 

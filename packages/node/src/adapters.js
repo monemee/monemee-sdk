@@ -88,6 +88,16 @@ function expressWebhook(monemee) {
   };
 }
 
+/** Monemee nicht erreichbar oder nicht eingerichtet → 503, nie still freischalten (fail closed). */
+function unavailable(err) {
+  const notConfigured = err && err.code === 'CONFIG';
+  return {
+    status: 503,
+    headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' },
+    body: JSON.stringify({ error: notConfigured ? 'monemee_not_configured' : 'monemee_unavailable', message: err ? err.message : 'unknown' })
+  };
+}
+
 /** Express-Middleware: nur mit Zugang weiter, sonst 401/402 mit buy_url. */
 function expressRequireAccess(monemee, getRef) {
   return function requireAccess(req, res, next) {
@@ -97,15 +107,7 @@ function expressRequireAccess(monemee, getRef) {
         return next();
       }
       return sendNode(res, r.response);
-    }, (err) => {
-      // Monemee nicht erreichbar → nicht still freischalten
-      sendNode(res, {
-        status: 503,
-        headers: { 'Content-Type': 'application/json; charset=utf-8' },
-        body: JSON.stringify({ error: 'monemee_unavailable', message: err.message })
-      });
-      if (typeof next !== 'function') return;
-    });
+    }, (err) => sendNode(res, unavailable(err)));
   };
 }
 
@@ -144,9 +146,14 @@ function nextRoute(monemee) {
   return { GET: handler, POST: handler };
 }
 
-/** Für Web-Handler: Response bei fehlendem Zugang, sonst null + Ergebnis. */
+/** Für Web-Handler: Response bei fehlendem Zugang (401/402, 503 wenn Monemee nicht erreichbar), sonst null + Ergebnis. */
 async function guard(monemee, request, getRef) {
-  const r = await monemee._checkAccess(request, getRef);
+  let r;
+  try {
+    r = await monemee._checkAccess(request, getRef);
+  } catch (err) {
+    return { response: toResponse(unavailable(err)), access: null }; // wie requireAccess(): fail closed
+  }
   return r.ok ? { response: null, access: r.access } : { response: toResponse(r.response), access: null };
 }
 

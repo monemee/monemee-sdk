@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="482" viewBox="0 0 1000 482" role="img" aria-label="Terminal: npx monemee init creates the product, writes .env and adds a paywall in test mode">
+<title>npx monemee init</title>
+<style>
+text{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;font-size:15px;fill:#C9D1E8;white-space:pre}
+.d{fill:#8A93B0} .w{fill:#FFFFFF} .bold{font-weight:700} .g{fill:#6EE7A8} .a{fill:#8FA2FF}
+@keyframes l0{0%,3.75%{opacity:0}5.25%,96%{opacity:1}100%{opacity:0}}.l0{animation:l0 16.0s linear infinite}@keyframes l1{0%,13.44%{opacity:0}14.94%,96%{opacity:1}100%{opacity:0}}.l1{animation:l1 16.0s linear infinite}@keyframes l2{0%,18.13%{opacity:0}19.63%,96%{opacity:1}100%{opacity:0}}.l2{animation:l2 16.0s linear infinite}@keyframes l3{0%,22.81%{opacity:0}24.31%,96%{opacity:1}100%{opacity:0}}.l3{animation:l3 16.0s linear infinite}@keyframes l4{0%,27.5%{opacity:0}29.0%,96%{opacity:1}100%{opacity:0}}.l4{animation:l4 16.0s linear infinite}@keyframes l5{0%,32.19%{opacity:0}33.69%,96%{opacity:1}100%{opacity:0}}.l5{animation:l5 16.0s linear infinite}@keyframes l6{0%,36.88%{opacity:0}38.38%,96%{opacity:1}100%{opacity:0}}.l6{animation:l6 16.0s linear infinite}@keyframes l7{0%,41.56%{opacity:0}43.06%,96%{opacity:1}100%{opacity:0}}.l7{animation:l7 16.0s linear infinite}@keyframes l8{0%,46.25%{opacity:0}47.75%,96%{opacity:1}100%{opacity:0}}.l8{animation:l8 16.0s linear infinite}@keyframes l9{0%,50.94%{opacity:0}52.44%,96%{opacity:1}100%{opacity:0}}.l9{animation:l9 16.0s linear infinite}@keyframes l10{0%,55.62%{opacity:0}57.12%,96%{opacity:1}100%{opacity:0}}.l10{animation:l10 16.0s linear infinite}@keyframes l11{0%,60.31%{opacity:0}61.81%,96%{opacity:1}100%{opacity:0}}.l11{animation:l11 16.0s linear infinite}@keyframes l12{0%,65.0%{opacity:0}66.5%,96%{opacity:1}100%{opacity:0}}.l12{animation:l12 16.0s linear infinite}@keyframes l13{0%,69.69%{opacity:0}71.19%,96%{opacity:1}100%{opacity:0}}.l13{animation:l13 16.0s linear infinite}@keyframes l14{0%,74.38%{opacity:0}75.88%,96%{opacity:1}100%{opacity:0}}.l14{animation:l14 16.0s linear infinite}
+@media (prefers-reduced-motion: reduce){text{animation:none!important;opacity:1!important}}
+</style>
+<rect width="1000" height="482" rx="12" fill="#11152A"/>
+<rect width="1000" height="36" rx="12" fill="#1B2140"/><rect y="24" width="1000" height="12" fill="#1B2140"/>
+<circle cx="22" cy="18" r="6" fill="#3A4270"/><circle cx="42" cy="18" r="6" fill="#3A4270"/><circle cx="62" cy="18" r="6" fill="#3A4270"/>
+<text x="500" y="23" text-anchor="middle" class="d" style="font-size:13px">my-app</text>
+<text x="28" y="64" class="t l0"><tspan class="a">$</tspan><tspan class="w"> npx monemee init</tspan></text>
+<text x="28" y="90" class="t l1"><tspan class="g">✔</tspan> Project detected: Express + React · login via session/cookie</text>
+<text x="28" y="116" class="d l2">→ Not connected to https://monemee.com yet. Opening your browser…</text>
+<text x="28" y="142" class="t l3"><tspan class="g">✔</tspan> Connected to Monemee</text>
+<text x="28" y="168" class="t l4"><tspan class="a">?</tspan> Product name? (my-app Pro) </text>
+<text x="28" y="194" class="t l5"><tspan class="a">?</tspan> Price in euros? (9) </text>
+<text x="28" y="220" class="t l6"><tspan class="g">✔</tspan> Product created: my-app Pro for 9 € (#123, draft)</text>
+<text x="28" y="246" class="t l7"><tspan class="g">✔</tspan> Test secret created</text>
+<text x="28" y="272" class="t l8"><tspan class="g">✔</tspan> server/.env updated (MONEMEE_APP_SECRET, MONEMEE_PRODUCT_ID)</text>
+<text x="28" y="298" class="t l9"><tspan class="g">✔</tspan> server/index.js: Monemee wired in</text>
+<text x="28" y="324" class="t l10"><tspan class="g">✔</tspan> client/src/components/MonemeeUpgrade.jsx created (paywall with buy, test and license key buttons)</text>
+<text x="28" y="350" class="t l11"><tspan class="g">✔</tspan> monemee-node installed</text>
+<text x="28" y="376" class="w bold l12"></text>
+<text x="28" y="402" class="w bold l13">Done – test mode is active.</text>
+<text x="28" y="428" class="d l14">  Start your app, log in, then: npx monemee test-buy (free test purchase)</text>
+</svg>

@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { detectProject, upsertEnv, readEnv, ensureGitignored, patchExpress, scaffoldNext, scaffoldReactUpgrade } from '../src/project.js';
-import { parseArgs } from '../src/main.js';
+import { detectProject, upsertEnv, readEnv, ensureGitignored, patchExpress, scaffoldNext, scaffoldReactUpgrade, addEnvLoader, ENV_LOADER } from '../src/project.js';
+import { parseArgs, LIVE_WEBHOOK_EVENTS } from '../src/main.js';
 
 function tmp(files) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'monemee-cli-'));
@@ -75,6 +75,8 @@ test('patchExpress (CommonJS): webhook vor express.json, routes nach Login und v
   assert.ok(at('app.use(monemee.webhook())') < at('app.use(express.json())'));
   assert.ok(at('app.use(monemee.routes())') > at('app.use(session())'));
   assert.ok(at('app.use(monemee.routes())') < at("app.get('/'"));
+  assert.ok(src.startsWith(`${ENV_LOADER}\n`), '.env-Loader steht ganz oben');
+  assert.equal(src.split('loadEnvFile').length, 2);
   assert.equal(patchExpress(file, 'cookie'), 'already');
   assert.equal(fs.readFileSync(file, 'utf8'), src);
   assert.doesNotMatch(src, /[äöüß]/);
@@ -94,6 +96,7 @@ test('patchExpress (ESM) nutzt import', () => {
   const src = fs.readFileSync(file, 'utf8');
   assert.match(src, /import createMonemee from 'monemee-node';/);
   assert.match(src, /verify the token from req\.headers\.authorization/);
+  assert.ok(src.startsWith(`${ENV_LOADER}\n`));
   assert.doesNotMatch(src, /[äöüß]/);
 });
 
@@ -128,4 +131,25 @@ test('parseArgs', () => {
   assert.deepEqual(parseArgs(['init', '--yes', '--price', '9', '--base-url=http://x']), {
     command: 'init', args: [], flags: { yes: true, price: '9', 'base-url': 'http://x' }
   });
+});
+
+test('patchExpress: dotenv schon vorhanden → kein zusätzlicher .env-Loader', () => {
+  const dir = tmp({ 'server.js': "require('dotenv').config();\nconst express = require('express');\nconst app = express();\napp.listen(3000);\n" });
+  const file = path.join(dir, 'server.js');
+  assert.equal(patchExpress(file, 'cookie'), 'patched');
+  const src = fs.readFileSync(file, 'utf8');
+  assert.doesNotMatch(src, /loadEnvFile/);
+  assert.ok(src.startsWith("require('dotenv').config();"));
+});
+
+test('addEnvLoader: nach Shebang und use strict, sonst ganz oben; vorhandenes loadEnvFile bleibt allein', () => {
+  assert.equal(addEnvLoader("#!/usr/bin/env node\n'use strict';\nconst a = 1;\n"), `#!/usr/bin/env node\n'use strict';\n${ENV_LOADER}\nconst a = 1;\n`);
+  assert.equal(addEnvLoader('"use strict"\nx();\n'), `"use strict"\n${ENV_LOADER}\nx();\n`);
+  assert.equal(addEnvLoader('x();\n'), `${ENV_LOADER}\nx();\n`);
+  assert.equal(addEnvLoader("process.loadEnvFile('.env.local');\n"), "process.loadEnvFile('.env.local');\n");
+  assert.equal(addEnvLoader("import 'dotenv/config';\n"), "import 'dotenv/config';\n");
+});
+
+test('live abonniert sale.completed und die Lizenz-Ereignisse', () => {
+  for (const e of ['sale.completed', 'license.created', 'license.revoked', 'license.activated']) assert.ok(LIVE_WEBHOOK_EVENTS.includes(e), e);
 });

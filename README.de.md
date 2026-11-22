@@ -15,7 +15,9 @@ Gedacht ist es für alle, die lieber Funktionen bauen als Abrechnung: Indie-Entw
 npx monemee init
 ```
 
-Die CLI loggt dich im Browser ein, legt das Produkt an, schreibt die `.env` und bindet Monemee in deinen Code ein. Alles startet im Testmodus. Du kannst den kompletten Kauf also ohne echtes Geld durchspielen.
+![npx monemee init: erkennt das Projekt, legt das Produkt an, schreibt die .env und baut eine Paywall im Testmodus ein](.github/demo.svg)
+
+Die CLI loggt dich im Browser ein, legt das Produkt an, schreibt die `.env` und bindet Monemee in deinen Code ein. Alles startet im Testmodus, du kannst den Kaufablauf also ohne echtes Geld durchspielen: Ein Testkauf überspringt nur die Zahlung, ab dem Rücksprung in deine App ist alles echt.
 
 ## Inhalt
 
@@ -38,7 +40,7 @@ Die CLI loggt dich im Browser ein, legt das Produkt an, schreibt die `.env` und 
 | Zugangsprüfung | `requireAccess()` auf dem Server, `<AccessGate>` in React. Erstattungen entziehen den Zugang automatisch. |
 | Lizenzschlüssel | Geräte-Limit, Laufzeit und Plan-Name für Software zum Herunterladen. |
 | Offline-Lizenzprüfung | Jede Antwort ist mit Ed25519 signiert. Apps laufen eine Weile auch ohne Internet weiter. |
-| Testmodus | Getrennte Test- und Live-Secrets. Testkäufe kosten nichts und verhalten sich wie echte. |
+| Testmodus | Getrennte Test- und Live-Secrets. Testkäufe kosten nichts: Sie überspringen die Zahlung und verhalten sich ab dem Rücksprung wie echte. |
 | Automatische Releases | Eine GitHub Action lädt jede neue Version hoch, bisherige Käufer bekommen sie über ihre Links. |
 | KI-Assistenten | [`AGENTS.md`](AGENTS.md) und fertige Skills lassen Claude Code, Cursor oder Copilot die Einrichtung übernehmen. |
 

@@ -16,7 +16,7 @@ updated: 2026-11-22
 npx monemee init
 ```
 
-Die CLI loggt dich im Browser ein, legt das Produkt an, schreibt die `.env` und bindet Monemee in deinen Code ein. Alles startet im Testmodus, du kannst den Kauf also ohne echtes Geld durchspielen.
+Die CLI loggt dich im Browser ein, legt das Produkt an, schreibt die `.env` und bindet Monemee in deinen Code ein. Alles startet im Testmodus, du kannst den Kaufablauf also ohne echtes Geld durchspielen: Ein Testkauf überspringt nur die Zahlung, ab dem Rücksprung in deine App ist alles echt.
 
 ## Paywall in eine Web-App einbauen
 

@@ -17,7 +17,9 @@ npx monemee init
 
 <a class="cta" href="{{ '/web-apps/' | relative_url }}">Add a paywall to a web app</a>
 
-The CLI logs you in through the browser, creates the product, writes your `.env` and wires Monemee into your code. Everything starts in test mode, so you can run the full purchase flow without real money.
+The CLI logs you in through the browser, creates the product, writes your `.env` and wires Monemee into your code. Everything starts in test mode, so you can try the purchase flow without real money: a test purchase skips the payment step, and everything from the return to your app on is real.
+
+![npx monemee init: detects the project, creates the product, writes .env and adds a paywall in test mode]({{ '/assets/demo.svg' | relative_url }})
 
 ## Choose your path
 

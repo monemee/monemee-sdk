@@ -39,7 +39,7 @@ const { loading, access, plan, expiresAt, buy, testBuy, unlock, refresh } = useA
 ```
 
 - `buy()` opens the checkout with the logged-in user attached.
-- `testBuy()` runs a free test purchase through the real flow (test mode only).
+- `testBuy()` runs a free test purchase (test mode only): it skips the payment step, everything from the return on is real.
 - `<LicenseForm />` lets customers who bought without the return flow paste the key from their purchase email.
 
 ## Texts and language

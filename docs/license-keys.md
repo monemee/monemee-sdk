@@ -76,6 +76,8 @@ The public keys are bundled with the SDKs and published at `https://monemee.com/
 | `activation_limit` | The device limit is reached; the buyer can free a device with `deactivate()` |
 | `device_not_activated` | The key is valid but not activated on this device |
 | `offline` | No connection and no valid stored response |
+| `not_activated` | No key is stored on this device yet: call `activate()` first (also after `deactivate()` or a revoked key) |
+| `invalid_signature` | The online answer carries a signature that does not verify, for example a tampered response from a proxy. Not returned when the runtime cannot verify Ed25519 at all; then the online answer counts, without offline grace |
 
 ## Testing
 

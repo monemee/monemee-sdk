@@ -1,6 +1,6 @@
 {
   "name": "monemee",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Set up selling your app in one command: checkout, unlock after purchase, license keys and access checks with Monemee.",
   "type": "module",
   "bin": {

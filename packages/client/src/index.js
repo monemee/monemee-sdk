@@ -45,6 +45,19 @@ async function sha256Hex(text) {
   return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
+/**
+ * Can this runtime verify Ed25519 at all? Imports a known-good public key; if that fails,
+ * WebCrypto has no Ed25519 (older browsers/webviews) and signatures cannot be checked here.
+ */
+export async function ed25519Supported() {
+  try {
+    await globalThis.crypto.subtle.importKey('jwk', { kty: 'OKP', crv: 'Ed25519', x: BUNDLED_PUBLIC_KEYS[0].x }, { name: 'Ed25519' }, false, ['verify']);
+    return true;
+  } catch (_) {
+    return false;
+  }
+}
+
 /** Prüft signed.signature über den exakten String signed.payload. */
 export async function verifySigned(signed, publicKeys) {
   if (!signed || typeof signed.payload !== 'string' || typeof signed.signature !== 'string') return null;
@@ -55,8 +68,18 @@ export async function verifySigned(signed, publicKeys) {
     const ok = await globalThis.crypto.subtle.verify({ name: 'Ed25519' }, key, b64urlToBytes(signed.signature), textBytes(signed.payload));
     return ok ? JSON.parse(signed.payload) : null;
   } catch (_) {
-    return null; // Ed25519 nicht unterstützt oder kaputte Daten → nicht vertrauen
+    return null; // kaputte Daten → nicht vertrauen (fehlendes Ed25519 prüft ed25519Supported())
   }
+}
+
+/**
+ * Ordner für die Lizenzdatei unter Node: %APPDATA%\<appName> auf Windows,
+ * sonst $XDG_CONFIG_HOME/<appName> bzw. ~/.config/<appName> (wie das Python-Paket).
+ * @internal exportiert für Tests
+ */
+export function storageDir(appName, { path, home, platform = globalThis.process?.platform, env = globalThis.process?.env || {} }) {
+  if (platform === 'win32' && env.APPDATA) return path.join(env.APPDATA, appName);
+  return path.join(env.XDG_CONFIG_HOME || path.join(home, '.config'), appName);
 }
 
 /** Speicher: localStorage im Browser/Electron, Datei in Node. */
@@ -74,7 +97,7 @@ function defaultStorage(appName) {
     const file = async () => {
       if (!filePromise) {
         filePromise = Promise.all([import('node:fs/promises'), import('node:path'), import('node:os')]).then(([fs, path, os]) => {
-          const dir = path.join(process.env.XDG_CONFIG_HOME || path.join(os.homedir(), '.config'), appName);
+          const dir = storageDir(appName, { path, home: os.homedir() });
           return { fs, dir, path: path.join(dir, 'license.json') };
         });
       }
@@ -123,6 +146,8 @@ export function createLicense(options = {}) {
   const doFetch = options.fetch || globalThis.fetch;
   const now = options.now || (() => Date.now());
   let keys = [...(options.publicKeys || []), ...BUNDLED_PUBLIC_KEYS];
+  let canVerify = null;
+  const verifiable = async () => (canVerify ??= ed25519Supported());
 
   async function load() {
     const raw = await storage.get('state');
@@ -213,7 +238,9 @@ export function createLicense(options = {}) {
       device_id: device,
       device_name: deviceName || options.deviceName || undefined
     });
-    if (data.valid) await save({ key, signed: data.signed || null, checkedAt: now() });
+    // Without Ed25519 the signature cannot be checked, so it is not kept as an offline proof.
+    const signed = data.signed && (await verifiable()) ? data.signed : null;
+    if (data.valid) await save({ key, signed, checkedAt: now() });
     return toResult(data, { activations: data.activations || null });
   }
 
@@ -237,8 +264,11 @@ export function createLicense(options = {}) {
       return toResult(p, { offline: true });
     }
 
-    // Online-Antwort: wenn signiert, Signatur prüfen (schützt vor manipulierten Proxys)
-    if (data.signed) {
+    // Online-Antwort: wenn signiert, Signatur prüfen (schützt vor manipulierten Proxys).
+    // Kann die Laufzeit kein Ed25519, gilt die TLS-Antwort – aber ohne Offline-Nachweis.
+    if (data.signed && !(await verifiable())) {
+      await save({ ...state, signed: null, checkedAt: now() });
+    } else if (data.signed) {
       const p = await trusted(data.signed, state.key, device, { maxAgeMs: 600000 });
       if (p && p.valid === Boolean(data.valid)) await save({ ...state, signed: data.signed, checkedAt: now() });
       else if (keys.length) return toResult({ valid: false, reason: 'invalid_signature' });

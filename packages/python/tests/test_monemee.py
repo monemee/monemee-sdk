@@ -7,6 +7,7 @@ import tempfile
 import threading
 import time
 import unittest
+from unittest import mock
 from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
@@ -25,13 +26,16 @@ PID = 42
 SECRET = "mmapp_test_" + "a" * 32
 
 
-def signed(fields):
+EVIL = Ed25519PrivateKey.generate()
+
+
+def signed(fields, priv=None):
     payload = dict(v=1, key_sha256=hashlib.sha256(KEY.encode()).hexdigest(), product_id=PID, device_id=None,
                    valid=True, reason=None, plan="pro", expires_at=None, test=False,
                    issued_at=datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"))
     payload.update(fields)
     text = json.dumps(payload, sort_keys=True, separators=(",", ":"))
-    sig = base64.urlsafe_b64encode(PRIV.sign(text.encode())).rstrip(b"=").decode()
+    sig = base64.urlsafe_b64encode((priv or PRIV).sign(text.encode())).rstrip(b"=").decode()
     return {"payload": text, "signature": sig, "kid": "test-1", "alg": "EdDSA"}
 
 
@@ -39,6 +43,7 @@ class Fake:
     valid = True
     reason = None
     access = False
+    evil = False
     calls = []
 
 
@@ -68,7 +73,8 @@ class Handler(BaseHTTPRequestHandler):
             if self.path.endswith("deactivate"):
                 return self._json({"success": True, "data": {"deactivated": True}})
             data = {"valid": Fake.valid, "reason": None if Fake.valid else Fake.reason, "product_id": PID, "plan": "pro"}
-            data["signed"] = signed({"device_id": body.get("device_id"), "valid": Fake.valid, "reason": data["reason"]})
+            data["signed"] = signed({"device_id": body.get("device_id"), "valid": Fake.valid, "reason": data["reason"]},
+                                    EVIL if Fake.evil and self.path.endswith("validate") else None)
             return self._json({"success": True, "data": data})
         if self.path == "/api/v1/apps/access":
             return self._json({"success": True, "data": {"access": Fake.access, "reason": None if Fake.access else "no_license", "ref": body["ref"]}})
@@ -92,7 +98,7 @@ class Base(unittest.TestCase):
         cls.server.shutdown()
 
     def setUp(self):
-        Fake.valid, Fake.reason, Fake.access, Fake.calls = True, None, False, []
+        Fake.valid, Fake.reason, Fake.access, Fake.evil, Fake.calls = True, None, False, False, []
         self.dir = tempfile.mkdtemp()
 
 
@@ -132,6 +138,23 @@ class LicenseTests(Base):
         f.write_text(json.dumps(data))
         off = License(product_id=PID, base_url="http://127.0.0.1:1", store_dir=self.dir, timeout=1)
         self.assertFalse(off.check().valid)
+
+    def test_without_ed25519_online_ok_but_no_offline_grace(self):
+        with mock.patch("monemee.license.ed25519_available", return_value=False):
+            lic = self.lic()
+            self.assertTrue(lic.activate(KEY).valid)
+            r = lic.check()
+            self.assertEqual((r.valid, r.reason), (True, None))
+            self.assertIsNone(json.loads((Path(self.dir) / "license.json").read_text())["signed"])
+            off = License(product_id=PID, base_url="http://127.0.0.1:1", store_dir=self.dir, timeout=1)
+            self.assertEqual(off.check().reason, "offline")
+
+    def test_wrong_signature_online_rejected(self):
+        lic = self.lic()
+        lic.activate(KEY)
+        Fake.evil = True
+        r = lic.check()
+        self.assertEqual((r.valid, r.reason), (False, "invalid_signature"))
 
     def test_revoked_forgets_key(self):
         lic = self.lic()
