@@ -1,4 +1,5 @@
 import { accessToken } from './oauth.js';
+import { t } from './i18n.js';
 
 /** Public API (Login-Token) und App-API (App-Secret). */
 
@@ -18,18 +19,18 @@ async function request(url, { method = 'GET', body, token }) {
       body: body ? JSON.stringify(body) : undefined
     });
   } catch (err) {
-    throw new CliError(`Monemee nicht erreichbar (${err.message}).`);
+    throw new CliError(t('unreachable', { error: err.message }));
   }
   const json = await res.json().catch(() => ({}));
-  if (res.status === 401) throw new CliError('Nicht eingeloggt oder Login abgelaufen. Bitte `npx monemee login` ausführen.');
-  if (!res.ok || json.success === false) throw new CliError(json.message || `Monemee antwortete mit HTTP ${res.status}`);
+  if (res.status === 401) throw new CliError(t('session_expired'));
+  if (!res.ok || json.success === false) throw new CliError(json.message || t('http_error', { status: res.status }));
   return json.data;
 }
 
 export function publicApi(base) {
   const call = async (method, path, body) => {
     const token = await accessToken(base);
-    if (!token) throw new CliError('Nicht eingeloggt. Bitte `npx monemee login` ausführen.');
+    if (!token) throw new CliError(t('not_logged_in'));
     return request(`${base}/api/v1/public${path}`, { method, body, token });
   };
   return {

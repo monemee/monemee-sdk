@@ -9,6 +9,7 @@ import path from 'node:path';
 process.env.MONEMEE_CONFIG_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'monemee-cfg-'));
 const { login, accessToken } = await import('../src/oauth.js');
 const { readCredentials } = await import('../src/config.js');
+const { setLang } = await import('../src/i18n.js');
 
 /** Nachgebauter Monemee-OAuth-Server. */
 async function fakeOauth({ deny = false } = {}) {
@@ -92,11 +93,33 @@ test('abgelaufenes Token wird per Refresh erneuert, kaputter Refresh löscht den
   }
 });
 
-test('abgelehnte Freigabe → verständlicher Fehler', async () => {
-  const s = await fakeOauth({ deny: true });
-  try {
-    await assert.rejects(login(s.base, { openBrowser: browser, log: () => {} }), /Freigabe abgelehnt/);
-  } finally {
-    await s.close();
+test('abgelehnte Freigabe → verständlicher Fehler (EN und DE)', async () => {
+  for (const [lng, msg] of [['en', /Access was denied/], ['de', /Freigabe abgelehnt/]]) {
+    setLang(lng);
+    const s = await fakeOauth({ deny: true });
+    try {
+      await assert.rejects(login(s.base, { openBrowser: browser, log: () => {} }), msg);
+    } finally {
+      await s.close();
+    }
   }
+  setLang('en');
+});
+
+test('Erfolgsseite im Browser folgt der Sprache', async () => {
+  for (const [lng, text] of [['en', 'You can close this window'], ['de', 'Du kannst dieses Fenster schließen']]) {
+    setLang(lng);
+    const s = await fakeOauth();
+    let html = null;
+    const capture = (url) => { fetch(url).then((r) => r.text()).then((h) => { html = h; }).catch(() => {}); };
+    try {
+      await login(s.base, { openBrowser: capture, log: () => {} });
+      for (let i = 0; i < 50 && html === null; i += 1) await new Promise((r) => setTimeout(r, 10));
+      assert.ok(html.includes(text), html);
+      assert.ok(html.includes(`lang="${lng}"`));
+    } finally {
+      await s.close();
+    }
+  }
+  setLang('en');
 });

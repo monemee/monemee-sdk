@@ -1,6 +1,7 @@
 import crypto from 'node:crypto';
 import http from 'node:http';
 import { readCredentials, writeCredentials } from './config.js';
+import { t, lang } from './i18n.js';
 
 /**
  * Login per Browser: OAuth 2.1 mit PKCE und Loopback-Redirect.
@@ -39,26 +40,26 @@ function listenOnLoopback() {
 
 function waitForCode(server, expectedState) {
   return new Promise((resolve, reject) => {
-    const timer = setTimeout(() => reject(new Error('Login abgebrochen (5 Minuten ohne Freigabe).')), LOGIN_TIMEOUT_MS);
+    const timer = setTimeout(() => reject(new Error(t('login_timeout'))), LOGIN_TIMEOUT_MS);
     server.on('request', (req, res) => {
       const url = new URL(req.url, 'http://127.0.0.1');
       if (url.pathname !== '/callback') {
         res.writeHead(404).end();
         return;
       }
-      const page = (title, text) => `<!doctype html><meta charset="utf-8"><title>${title}</title>
+      const page = (title, text) => `<!doctype html><html lang="${lang}"><meta charset="utf-8"><title>${title}</title>
 <body style="font-family:system-ui,sans-serif;max-width:32rem;margin:15vh auto;padding:0 1rem;color:#1A1A19">
 <h1 style="color:#2340D0">${title}</h1><p>${text}</p></body>`;
       const error = url.searchParams.get('error');
       if (error || url.searchParams.get('state') !== expectedState || !url.searchParams.get('code')) {
         res.writeHead(400, { 'Content-Type': 'text/html; charset=utf-8' })
-          .end(page('Login fehlgeschlagen', 'Bitte im Terminal erneut <code>npx monemee login</code> ausführen.'));
+          .end(page(t('page_failed_title'), t('page_failed_text')));
         clearTimeout(timer);
-        reject(new Error(error === 'access_denied' ? 'Freigabe abgelehnt.' : 'Login fehlgeschlagen (ungültige Antwort).'));
+        reject(new Error(t(error === 'access_denied' ? 'access_denied' : 'login_invalid_response')));
         return;
       }
       res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' })
-        .end(page('Verbunden ✓', 'Du kannst dieses Fenster schließen und zum Terminal zurückkehren.'));
+        .end(page(t('page_ok_title'), t('page_ok_text')));
       clearTimeout(timer);
       resolve(url.searchParams.get('code'));
     });
@@ -87,7 +88,7 @@ export async function login(base, { openBrowser, log }) {
       })
     });
     const reg = await regRes.json().catch(() => ({}));
-    if (!regRes.ok) throw new Error(`Registrierung fehlgeschlagen: ${reg.error_description || reg.error || regRes.status}`);
+    if (!regRes.ok) throw new Error(t('register_failed', { error: reg.error_description || reg.error || regRes.status }));
 
     // 2. PKCE + Browser
     const verifier = b64url(crypto.randomBytes(32));
@@ -104,7 +105,7 @@ export async function login(base, { openBrowser, log }) {
       code_challenge_method: 'S256'
     }).toString();
 
-    log(`Browser öffnet sich zur Freigabe. Falls nicht, diesen Link öffnen:\n  ${auth}`);
+    log(t('browser_opens', { url: auth }));
     openBrowser(auth.toString());
     const code = await waitForCode(server, state);
 

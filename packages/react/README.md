@@ -42,11 +42,21 @@ const { loading, access, plan, expiresAt, buy, testBuy, unlock, refresh } = useA
 - `testBuy()` runs a free test purchase through the real flow (test mode only).
 - `<LicenseForm />` lets customers who bought without the return flow paste the key from their purchase email.
 
+## Texts and language
+
+The default texts (buy button, license form, error messages) come in English and German. Without a `locale` prop, the provider picks German when `navigator.language` starts with `de` and English otherwise. Override single texts with `messages`; text props on a component (`children`, `label`, `submitLabel`) still win.
+
+```jsx
+<MonemeeProvider locale="en" messages={{ buyButton: 'Get Pro', licenseSubmit: 'Activate' }}>
+```
+
+With server-side rendering, set `locale` explicitly so server and browser render the same text. All keys are listed in `defaultMessages` and in `index.d.ts`.
+
 ## Components
 
 | Component | Props |
 |---|---|
-| `MonemeeProvider` | `basePath`, `getHeaders`, `handleReturn`, `onUnlocked`, `navigate`, `fetch` |
+| `MonemeeProvider` | `basePath`, `getHeaders`, `handleReturn`, `onUnlocked`, `navigate`, `fetch`, `locale`, `messages` |
 | `AccessGate` | `fallback`, `loading` |
 | `BuyButton` | any anchor props |
 | `LicenseForm` | `label`, `submitLabel`, `onUnlocked`, `className` |

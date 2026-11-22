@@ -112,13 +112,13 @@ export function ensureGitignored(dir, entry = '.env') {
 // ---------- Code ----------
 
 export const EXPRESS_SNIPPET = (login) => `const monemee = require('@monemee/node')({
-  getRef: (req) => req.user?.id,   // ← Nutzer-ID aus deinem Login${login === 'token' ? '\n  // Token-Login: hier das Token aus req.headers.authorization prüfen und die Nutzer-ID zurückgeben' : ''}
+  getRef: (req) => req.user?.id,   // ← user ID from your login${login === 'token' ? '\n  // Token login: verify the token from req.headers.authorization here and return the user ID' : ''}
 });
-app.use(monemee.webhook());        // direkt nach express(), vor express.json()
-// … express.json(), Session/Login …
-app.use(monemee.routes());         // nach deinem Login, vor deinen Routen
+app.use(monemee.webhook());        // right after express(), before express.json()
+// … express.json(), session/login …
+app.use(monemee.routes());         // after your login, before your routes
 
-// Beispiel: geschützte Route
+// Example: protected route
 // app.get('/api/pro', monemee.requireAccess(), handler);`;
 
 /**
@@ -151,14 +151,14 @@ export function patchExpress(file, login) {
   const requireLine = isEsm ? "import createMonemee from '@monemee/node';" : "const createMonemee = require('@monemee/node');";
   const createBlock = [
     '',
-    `${indent}// Monemee: Kauf, Freischaltung nach dem Kauf, Zugangsprüfung (npx monemee init)`,
+    `${indent}// Monemee: checkout, unlock after purchase, access checks (npx monemee init)`,
     `${indent}const monemee = createMonemee({`,
-    `${indent}  getRef: (req) => req.user?.id, // TODO: Nutzer-ID aus deinem Login${login === 'token' ? ' (Token aus req.headers.authorization prüfen)' : ''}`,
+    `${indent}  getRef: (req) => req.user?.id, // TODO: user ID from your login${login === 'token' ? ' (verify the token from req.headers.authorization)' : ''}`,
     `${indent}});`,
-    `${indent}${app}.use(monemee.webhook()); // vor express.json(): braucht den rohen Body`,
+    `${indent}${app}.use(monemee.webhook()); // before express.json(): needs the raw body`,
     ''
   ].join('\n');
-  const routesBlock = `${indent}${app}.use(monemee.routes()); // Monemee: /monemee/buy, /return, /access … (nach deinem Login)\n\n`;
+  const routesBlock = `${indent}${app}.use(monemee.routes()); // Monemee: /monemee/buy, /return, /access … (after your login)\n\n`;
 
   let out = src.slice(0, routeAt) + routesBlock + src.slice(routeAt);
   out = out.slice(0, afterCreate) + `\n${createBlock}` + out.slice(afterCreate);
@@ -186,7 +186,7 @@ export function scaffoldNext(project) {
     fs.mkdirSync(libDir, { recursive: true });
     fs.writeFileSync(libFile, `import createMonemee from '@monemee/node';
 
-// Nutzer-ID aus deinem Login, z. B. mit Auth.js: (await auth())?.user?.id
+// User ID from your login, e.g. with Auth.js: (await auth())?.user?.id
 export const monemee = createMonemee({
   getRef: async (request) => null, // TODO
 });
@@ -214,18 +214,21 @@ export function scaffoldReactUpgrade(clientDir, { login, price }) {
   if (fs.existsSync(file)) return null;
   fs.mkdirSync(dir, { recursive: true });
   const headers = login === 'token'
-    ? `\n  // Token-Login: Login-Header mitschicken, z. B. Firebase:\n  // getHeaders={async () => ({ Authorization: \`Bearer \${await auth.currentUser.getIdToken()}\` })}`
+    ? `\n  // Token login: send the login header, e.g. with Firebase:\n  // getHeaders={async () => ({ Authorization: \`Bearer \${await auth.currentUser.getIdToken()}\` })}`
     : '';
   fs.writeFileSync(file, `import { MonemeeProvider, AccessGate, BuyButton, LicenseForm, useAccess } from '@monemee/react';
 
 /**
- * Pro-Bereich: zeigt children nur nach dem Kauf.
- * Einbinden: <MonemeeUpgrade><DeinProFeature /></MonemeeUpgrade>${headers}
+ * Pro area: renders children only after a purchase.
+ * Usage: <MonemeeUpgrade><YourProFeature /></MonemeeUpgrade>${headers}
+ *
+ * Default texts of LicenseForm follow the browser language (English or German).
+ * Pin them with <MonemeeProvider locale="en">.
  */
 export default function MonemeeUpgrade({ children }) {
   return (
     <MonemeeProvider>
-      <AccessGate loading={<p>Lädt …</p>} fallback={<Paywall />}>
+      <AccessGate loading={<p>Loading…</p>} fallback={<Paywall />}>
         {children}
       </AccessGate>
     </MonemeeProvider>
@@ -236,13 +239,13 @@ function Paywall() {
   const { mode, testBuy } = useAccess();
   return (
     <div>
-      <h2>Pro freischalten</h2>
-      <BuyButton>Jetzt kaufen${price ? ` – ${price} €` : ''}</BuyButton>
+      <h2>Unlock Pro</h2>
+      <BuyButton>Buy now${price ? ` – €${price}` : ''}</BuyButton>
       {mode === 'test' && (
-        <button type="button" onClick={() => testBuy()}>Testkauf (ohne Geld)</button>
+        <button type="button" onClick={() => testBuy()}>Test purchase (no charge)</button>
       )}
       <details>
-        <summary>Schon gekauft? Lizenzschlüssel eingeben</summary>
+        <summary>Already bought? Enter your license key</summary>
         <LicenseForm />
       </details>
     </div>

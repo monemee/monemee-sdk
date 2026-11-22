@@ -7,6 +7,28 @@ export interface UnlockResult {
   expires_at?: string | null;
 }
 
+export type MonemeeLocale = 'en' | 'de';
+
+/** All default texts. Override any of them with the `messages` prop of MonemeeProvider. */
+export interface MonemeeMessages {
+  /** BuyButton label when no children are given */
+  buyButton: string;
+  licenseLabel: string;
+  licenseSubmit: string;
+  licensePlaceholder: string;
+  /** Key was checked but unlocks nothing (no specific reason) */
+  licenseNoAccess: string;
+  licenseInvalidFormat: string;
+  licenseError: string;
+  reasonNoLicense: string;
+  reasonRevoked: string;
+  reasonExpired: string;
+  reasonRefMismatch: string;
+  reasonModeMismatch: string;
+}
+
+export const defaultMessages: Record<MonemeeLocale, MonemeeMessages>;
+
 export interface AccessState {
   loading: boolean;
   access: boolean;
@@ -16,6 +38,10 @@ export interface AccessState {
   mode: 'test' | 'live' | null;
   error: Error | null;
   basePath: string;
+  /** Language of the default texts */
+  locale: MonemeeLocale;
+  /** Default texts merged with the `messages` prop */
+  messages: MonemeeMessages;
   refresh(): Promise<unknown>;
   unlock(input: { claim?: string; key?: string }): Promise<UnlockResult>;
   /** Zur Bezahlseite (Kauf ist mit dem eingeloggten Nutzer verknüpft) */
@@ -35,6 +61,10 @@ export interface MonemeeProviderProps {
   onUnlocked?: (result: UnlockResult) => void;
   fetch?: typeof fetch;
   navigate?: (url: string) => void;
+  /** Language of the default texts · default: German if navigator.language starts with 'de', otherwise 'en' */
+  locale?: MonemeeLocale;
+  /** Override individual texts, e.g. { buyButton: 'Get Pro' } */
+  messages?: Partial<MonemeeMessages>;
   children?: ReactNode;
 }
 

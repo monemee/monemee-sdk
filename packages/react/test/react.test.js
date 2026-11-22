@@ -3,7 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createElement as h } from 'react';
 import { render, screen, waitFor, fireEvent, cleanup } from '@testing-library/react';
-import { MonemeeProvider, AccessGate, BuyButton, LicenseForm, useAccess } from '../src/index.js';
+import { MonemeeProvider, AccessGate, BuyButton, LicenseForm, useAccess, defaultMessages } from '../src/index.js';
 
 /** Fake-Server: nimmt Pfad + Body auf, antwortet aus einer Tabelle. */
 function fakeFetch(routes) {
@@ -87,8 +87,9 @@ test('LicenseForm: Fehlermeldung bei fremdem Schlüssel, Erfolg schaltet frei', 
     const a = useAccess();
     return h('span', { 'data-testid': 'status' }, a.access ? 'frei' : 'gesperrt');
   }
-  render(h(MonemeeProvider, { fetch }, h(Status), h(LicenseForm)));
+  render(h(MonemeeProvider, { fetch, locale: 'de' }, h(Status), h(LicenseForm)));
   await waitFor(() => assert.equal(screen.getByTestId('status').textContent, 'gesperrt'));
+  assert.ok(screen.getByText('Lizenzschlüssel'));
 
   const input = screen.getByPlaceholderText('MM-XXXX-XXXX-XXXX-XXXX');
   fireEvent.change(input, { target: { value: 'MM-BBBB-BBBB-BBBB-BBBB' } });
@@ -109,4 +110,58 @@ test('useAccess ohne Provider → verständlicher Fehler', () => {
   } finally {
     console.error = original;
   }
+});
+
+function setNavigatorLanguage(value) {
+  Object.defineProperty(window.navigator, 'language', { value, configurable: true });
+}
+
+test('Standardtexte: Englisch ohne deutsche Browsersprache, Fehlermeldungen auf Englisch', async () => {
+  setNavigatorLanguage('en-US');
+  const fetch = fakeFetch({
+    '/monemee/access': [200, { access: false }],
+    '/monemee/unlock': [200, { access: false, reason: 'revoked' }]
+  });
+  render(h(MonemeeProvider, { fetch }, h(BuyButton), h(LicenseForm)));
+  await waitFor(() => assert.ok(screen.getByText('Unlock now')));
+  assert.ok(screen.getByText('License key'));
+  fireEvent.change(screen.getByPlaceholderText('MM-XXXX-XXXX-XXXX-XXXX'), { target: { value: 'MM-BBBB-BBBB-BBBB-BBBB' } });
+  fireEvent.click(screen.getByText('Unlock'));
+  await waitFor(() => assert.equal(screen.getByRole('alert').textContent, defaultMessages.en.reasonRevoked));
+});
+
+test('Standardtexte: Deutsch aus navigator.language, locale-Prop hat Vorrang', async () => {
+  const fetch = fakeFetch({ '/monemee/access': [200, { access: false }] });
+  setNavigatorLanguage('de-AT');
+  try {
+    render(h(MonemeeProvider, { fetch }, h(BuyButton)));
+    await waitFor(() => assert.ok(screen.getByText('Jetzt freischalten')));
+    cleanup();
+    render(h(MonemeeProvider, { fetch, locale: 'en' }, h(BuyButton)));
+    await waitFor(() => assert.ok(screen.getByText('Unlock now')));
+  } finally {
+    setNavigatorLanguage('en-US');
+  }
+});
+
+test('messages überschreibt einzelne Texte, Props der Komponenten haben Vorrang', async () => {
+  const fetch = fakeFetch({
+    '/monemee/access': [200, { access: false }],
+    '/monemee/unlock': () => [400, { error: 'invalid_key' }]
+  });
+  function Locale() {
+    return h('span', { 'data-testid': 'locale' }, useAccess().locale);
+  }
+  render(h(MonemeeProvider, { fetch, locale: 'de', messages: { buyButton: 'Pro holen', licenseInvalidFormat: 'Format falsch' } },
+    h(Locale), h(BuyButton), h(LicenseForm, { submitLabel: 'Los' })));
+  await waitFor(() => assert.ok(screen.getByText('Pro holen')));
+  assert.equal(screen.getByTestId('locale').textContent, 'de');
+  assert.ok(screen.getByText('Lizenzschlüssel'));
+  fireEvent.change(screen.getByPlaceholderText('MM-XXXX-XXXX-XXXX-XXXX'), { target: { value: 'kaputt' } });
+  fireEvent.click(screen.getByText('Los'));
+  await waitFor(() => assert.equal(screen.getByRole('alert').textContent, 'Format falsch'));
+});
+
+test('EN und DE haben dieselben Text-Schlüssel', () => {
+  assert.deepEqual(Object.keys(defaultMessages.de).sort(), Object.keys(defaultMessages.en).sort());
 });

@@ -5,6 +5,7 @@ import { spawn } from 'node:child_process';
 import { baseUrl, readCredentials, writeCredentials } from './config.js';
 import { login, accessToken } from './oauth.js';
 import { publicApi, appApi, CliError } from './api.js';
+import { t, setLang } from './i18n.js';
 import {
   detectProject, upsertEnv, readEnv, ensureGitignored,
   patchExpress, scaffoldNext, scaffoldReactUpgrade, EXPRESS_SNIPPET
@@ -22,29 +23,7 @@ const ok = (msg) => console.log(`${blue('✔')} ${msg}`);
 const info = (msg) => console.log(`${dim('→')} ${msg}`);
 const warn = (msg) => console.log(`${paint('33')('!')} ${msg}`);
 
-const HELP = `
-${bold('monemee')} ${dim(`v${VERSION}`)} – verkaufe deine App über Monemee
-
-${bold('Befehle')}
-  init        Alles einrichten: Login, Produkt, .env, Code (Testmodus)
-  test-buy    Testkauf ohne Geld (echter Ablauf bis zur Freischaltung)
-  live        Live schalten: Rücksprung-URL, Live-Secret, Webhook
-  doctor      Einrichtung prüfen
-  login       Im Browser bei Monemee einloggen
-  logout      Login auf diesem Rechner löschen
-  whoami      Zeigt, mit welchem Konto die CLI verbunden ist
-
-${bold('Optionen')}
-  --yes             Fragen mit Standardwert beantworten
-  --product <id>    Bestehendes Produkt verwenden
-  --title <text>    Titel für ein neues Produkt
-  --price <euro>    Preis für ein neues Produkt
-  --url <https://>  (live) Adresse deiner Live-App
-  --ref <id>        (test-buy) Nutzer-ID für den Testkauf
-  --base-url <url>  Andere Monemee-Instanz (z. B. https://staging.monemee.com)
-
-Doku: https://github.com/monemee/monemee-sdk
-`;
+const help = () => t('help', { b: bold, d: dim, version: VERSION });
 
 function parseArgs(argv) {
   const flags = {};
@@ -82,7 +61,8 @@ function createAsk(flags) {
     return answer || def;
   };
   ask.confirm = async (question, def = true) => {
-    const a = (await ask(`${question} ${dim(def ? '[J/n]' : '[j/N]')}`, def ? 'j' : 'n')).toLowerCase();
+    const hint = def ? t('confirm_hint_yes') : t('confirm_hint_no');
+    const a = (await ask(`${question} ${dim(hint)}`, def ? t('confirm_default_yes') : 'n')).toLowerCase();
     return a.startsWith('j') || a.startsWith('y');
   };
   ask.close = () => rl && rl.close();
@@ -91,9 +71,9 @@ function createAsk(flags) {
 
 async function ensureLogin(base) {
   if (await accessToken(base)) return;
-  info(`Noch nicht verbunden mit ${base}.`);
+  info(t('not_connected', { base }));
   await login(base, { openBrowser, log: info });
-  ok('Mit Monemee verbunden');
+  ok(t('connected'));
 }
 
 function envFile(project) {
@@ -110,19 +90,19 @@ async function cmdLogin(flags) {
   const base = baseUrl(flags);
   await login(base, { openBrowser, log: info });
   const me = await publicApi(base).me();
-  ok(`Verbunden als ${bold(me.email)} (${base})`);
+  ok(t('connected_as', { email: bold(me.email), base }));
 }
 
 async function cmdLogout(flags) {
   const base = baseUrl(flags);
   writeCredentials(base, null);
-  ok(`Login für ${base} gelöscht. Die Freigabe kannst du in Monemee unter Einstellungen → Verbundene Apps widerrufen.`);
+  ok(t('logout_done', { base }));
 }
 
 async function cmdWhoami(flags) {
   const base = baseUrl(flags);
   if (!readCredentials(base)) {
-    info('Nicht eingeloggt. `npx monemee login`');
+    info(t('not_logged_in_hint'));
     return;
   }
   const me = await publicApi(base).me();
@@ -135,10 +115,10 @@ async function chooseProduct(api, flags, ask, project) {
   const products = await api.products();
   const list = Array.isArray(products) ? products : products?.products || [];
   if (list.length && !flags.title) {
-    console.log(`\n${bold('Deine Produkte')}`);
+    console.log(`\n${bold(t('your_products'))}`);
     list.slice(0, 20).forEach((p, i) => console.log(`  ${i + 1}) ${p.title} ${dim(`#${p.id} · ${p.price} € · ${p.status}`)}`));
-    console.log(`  n) Neues Produkt anlegen`);
-    const pick = await ask('Welches Produkt verkauft diese App?', 'n');
+    console.log(`  n) ${t('new_product_option')}`);
+    const pick = await ask(t('ask_which_product'), 'n');
     const idx = Number(pick) - 1;
     if (Number.isInteger(idx) && list[idx]) return api.product(list[idx].id);
   }
@@ -146,18 +126,18 @@ async function chooseProduct(api, flags, ask, project) {
   const pkg = (() => {
     try { return JSON.parse(fs.readFileSync(path.join(process.cwd(), 'package.json'), 'utf8')); } catch (_) { return {}; }
   })();
-  const title = flags.title || (await ask('Name des Produkts?', `${pkg.name || path.basename(process.cwd())} Pro`));
-  const price = Number(String(flags.price || (await ask('Preis in Euro?', '9'))).replace(',', '.'));
-  if (!Number.isFinite(price) || price <= 0) throw new CliError('Preis muss eine positive Zahl sein.');
+  const title = flags.title || (await ask(t('ask_product_name'), `${pkg.name || path.basename(process.cwd())} Pro`));
+  const price = Number(String(flags.price || (await ask(t('ask_price'), '9'))).replace(',', '.'));
+  if (!Number.isFinite(price) || price <= 0) throw new CliError(t('price_invalid'));
   const created = await api.createProduct({
     frontend_type: 'link',
     title,
     price,
-    description: `Zugang zu ${title}.`,
+    description: t('product_description', { title }),
     status: 'draft',
     license_enabled: true
   });
-  ok(`Produkt angelegt: ${bold(title)} für ${price} € ${dim(`(#${created.id}, Entwurf)`)}`);
+  ok(t('product_created', { title: bold(title), price, meta: dim(t('product_created_meta', { id: created.id })) }));
   return created;
 }
 
@@ -166,8 +146,8 @@ async function cmdInit(flags) {
   const ask = createAsk(flags);
   try {
     const project = detectProject(process.cwd());
-    const label = { next: 'Next.js', express: 'Express', fastify: 'Fastify', python: 'Python', node: 'Node.js', unknown: 'unbekannt' }[project.framework];
-    ok(`Projekt erkannt: ${bold(label)}${project.react ? ' + React' : ''} · Login per ${project.login === 'token' ? 'Token im Browser' : 'Session/Cookie'}`);
+    const label = { next: 'Next.js', express: 'Express', fastify: 'Fastify', python: 'Python', node: 'Node.js', unknown: t('framework_unknown') }[project.framework];
+    ok(t('project_detected', { label: bold(label), react: project.react ? ' + React' : '', login: t(project.login === 'token' ? 'login_token' : 'login_cookie') }));
 
     await ensureLogin(base);
     const api = publicApi(base);
@@ -175,7 +155,7 @@ async function cmdInit(flags) {
     let product = await chooseProduct(api, flags, ask, project);
     if (!product.license_enabled) {
       product = await api.updateProduct(product.id, { license_enabled: true });
-      ok('Lizenzschlüssel für das Produkt aktiviert');
+      ok(t('license_enabled'));
     }
 
     // Test-Secret: vorhandenes wiederverwenden, wenn es zu diesem Produkt gehört
@@ -190,7 +170,7 @@ async function cmdInit(flags) {
     }
     if (!reuse) {
       secret = (await api.createAppSecret(product.id, 'test')).secret;
-      ok('Test-Secret angelegt');
+      ok(t('test_secret_created'));
     }
 
     upsertEnv(file, {
@@ -198,60 +178,60 @@ async function cmdInit(flags) {
       MONEMEE_PRODUCT_ID: product.id,
       ...(base !== 'https://monemee.com' ? { MONEMEE_BASE_URL: base } : {})
     });
-    ok(`${rel(file)} ergänzt (MONEMEE_APP_SECRET, MONEMEE_PRODUCT_ID)`);
-    if (ensureGitignored(project.serverDir)) ok('.env in .gitignore eingetragen');
+    ok(t('env_updated', { file: rel(file) }));
+    if (ensureGitignored(project.serverDir)) ok(t('gitignore_added'));
 
     // Code
     const packages = [];
     if (project.framework === 'express') {
       packages.push({ dir: project.serverDir, name: '@monemee/node' });
       const result = project.serverEntry ? patchExpress(project.serverEntry, project.login) : 'manual';
-      if (result === 'patched') ok(`${rel(project.serverEntry)}: Monemee eingebunden ${dim('(getRef anpassen – siehe TODO)')}`);
-      else if (result === 'already') ok(`${rel(project.serverEntry)}: Monemee ist schon eingebunden`);
+      if (result === 'patched') ok(t('express_patched', { file: rel(project.serverEntry), hint: dim(t('express_patched_hint')) }));
+      else if (result === 'already') ok(t('express_already', { file: rel(project.serverEntry) }));
       else {
-        warn('Server-Datei nicht eindeutig gefunden. Füge das hier nach `const app = express()` ein:');
+        warn(t('express_manual'));
         console.log(`\n${EXPRESS_SNIPPET(project.login)}\n`);
       }
     } else if (project.framework === 'next') {
       packages.push({ dir: project.serverDir, name: '@monemee/node @monemee/react' });
-      for (const f of scaffoldNext(project)) ok(`${rel(f)} angelegt`);
+      for (const f of scaffoldNext(project)) ok(t('file_created', { file: rel(f) }));
     } else if (project.framework === 'python') {
-      info('Python: Das Python-Paket folgt. Bis dahin: POST /api/v1/apps/access mit dem App-Secret (siehe Doku).');
+      info(t('python_info'));
     } else {
       packages.push({ dir: project.serverDir, name: '@monemee/node' });
-      info('Kein Express/Next erkannt. Nutze monemee.routes() (Node-Middleware) oder monemee.handleRequest(request).');
+      info(t('no_framework'));
     }
     if (project.react && project.framework !== 'next' && project.clientDir) {
       packages.push({ dir: project.clientDir, name: '@monemee/react' });
       const f = scaffoldReactUpgrade(project.clientDir, { login: project.login, price: product.price });
-      if (f) ok(`${rel(f)} angelegt (Paywall mit Kauf-, Test- und Schlüssel-Knopf)`);
+      if (f) ok(t('react_created', { file: rel(f) }));
     }
 
     // Pakete
     for (const p of packages) {
       const cmd = `npm install ${p.name}`;
       if (flags['skip-install']) {
-        info(`Bitte installieren: ${bold(cmd)} ${dim(`in ${rel(p.dir)}`)}`);
+        info(t('please_install', { cmd: bold(cmd), where: dim(t('in_dir', { dir: rel(p.dir) })) }));
         continue;
       }
-      if (await ask.confirm(`${cmd} in ${rel(p.dir)} ausführen?`)) {
+      if (await ask.confirm(t('confirm_install', { cmd, dir: rel(p.dir) }))) {
         await new Promise((resolve) => {
           const child = spawn('npm', ['install', ...p.name.split(' ')], { cwd: p.dir, stdio: 'inherit', shell: process.platform === 'win32' });
           child.on('exit', (code) => {
-            if (code === 0) ok(`${p.name} installiert`);
-            else warn(`Installation fehlgeschlagen – bitte selbst ausführen: ${cmd}`);
+            if (code === 0) ok(t('installed', { name: p.name }));
+            else warn(t('install_failed', { cmd }));
             resolve();
           });
-          child.on('error', () => { warn(`Bitte selbst ausführen: ${cmd}`); resolve(); });
+          child.on('error', () => { warn(t('run_yourself', { cmd })); resolve(); });
         });
       }
     }
 
     console.log(`
-${bold('Fertig – Testmodus aktiv.')}
-  1. ${project.framework === 'express' || project.framework === 'next' ? 'getRef in der Monemee-Einbindung auf die Nutzer-ID deines Logins setzen' : 'Monemee in deinen Server einbinden (siehe Doku)'}
-  2. App starten, einloggen, dann: ${bold('npx monemee test-buy')} ${dim('(Testkauf ohne Geld)')}
-  3. Wenn alles klappt: ${bold('npx monemee live')}
+${bold(t('done_title'))}
+  1. ${t(project.framework === 'express' || project.framework === 'next' ? 'done_step1_wired' : 'done_step1_manual')}
+  2. ${t('done_step2', { cmd: bold('npx monemee test-buy'), hint: dim(t('done_step2_hint')) })}
+  3. ${t('done_step3', { cmd: bold('npx monemee live') })}
 `);
   } finally {
     ask.close();
@@ -263,8 +243,8 @@ async function cmdTestBuy(flags) {
   const project = detectProject(process.cwd());
   const env = readEnv(envFile(project));
   const secret = env.MONEMEE_APP_SECRET;
-  if (!secret) throw new CliError('Kein MONEMEE_APP_SECRET in .env – zuerst `npx monemee init`.');
-  if (!secret.startsWith('mmapp_test_')) throw new CliError('Testkäufe gehen nur mit einem Test-Secret (mmapp_test_…).');
+  if (!secret) throw new CliError(t('no_secret'));
+  if (!secret.startsWith('mmapp_test_')) throw new CliError(t('test_secret_only'));
   const port = Number(flags.port || project.port || 3000);
 
   if (!flags.ref) {
@@ -273,10 +253,10 @@ async function cmdTestBuy(flags) {
       ? `http://localhost:${port}/`
       : `http://localhost:${port}/monemee/test-buy`;
     if (project.login === 'token') {
-      info('Token-Login: Öffne die Paywall in deiner App und klicke „Testkauf (ohne Geld)“.');
-      info(`Oder direkt: npx monemee test-buy --ref <deine-nutzer-id>`);
+      info(t('token_paywall_hint'));
+      info(t('token_direct'));
     } else {
-      info(`Öffne ${bold(url)} – eingeloggt in deiner App. Danach bist du freigeschaltet.`);
+      info(t('open_logged_in', { url: bold(url) }));
     }
     openBrowser(url);
     return;
@@ -284,7 +264,7 @@ async function cmdTestBuy(flags) {
 
   const returnUrl = project.login === 'token' ? `http://localhost:${port}/` : `http://localhost:${port}/monemee/return`;
   const { redirectUrl } = await appApi(base, secret).testClaim(String(flags.ref), returnUrl);
-  ok(`Testkauf für ${bold(flags.ref)} bereit. Öffne (eingeloggt als dieser Nutzer):\n  ${redirectUrl}`);
+  ok(t('test_buy_ready', { ref: bold(flags.ref), url: redirectUrl }));
   openBrowser(redirectUrl);
 }
 
@@ -295,51 +275,51 @@ async function cmdLive(flags) {
     const project = detectProject(process.cwd());
     const env = readEnv(envFile(project));
     const productId = flags.product || env.MONEMEE_PRODUCT_ID;
-    if (!productId) throw new CliError('Kein Produkt gefunden – zuerst `npx monemee init`.');
+    if (!productId) throw new CliError(t('no_product'));
     await ensureLogin(base);
     const api = publicApi(base);
     const product = await api.product(productId);
 
-    const rawUrl = flags.url || (await ask('Adresse deiner Live-App (https://…)?', product.return_url ? new URL(product.return_url).origin : ''));
+    const rawUrl = flags.url || (await ask(t('ask_live_url'), product.return_url ? new URL(product.return_url).origin : ''));
     let origin;
     try {
       origin = new URL(rawUrl).origin;
     } catch (_) {
-      throw new CliError('Bitte eine vollständige Adresse angeben, z. B. https://meine-app.de');
+      throw new CliError(t('invalid_url'));
     }
-    if (!origin.startsWith('https://')) throw new CliError('Live-Apps brauchen https://');
+    if (!origin.startsWith('https://')) throw new CliError(t('https_required'));
 
     const defaultReturn = project.login === 'token' ? '/' : '/monemee/return';
-    const returnPath = flags['return-path'] || (await ask('Wohin nach dem Kauf?', defaultReturn));
+    const returnPath = flags['return-path'] || (await ask(t('ask_return_path'), defaultReturn));
     const returnUrl = new URL(returnPath, origin).toString();
     await api.updateProduct(product.id, { return_url: returnUrl });
-    ok(`Rücksprung-URL: ${returnUrl}`);
+    ok(t('return_url', { url: returnUrl }));
 
     const live = await api.createAppSecret(product.id, 'live');
     let webhook = null;
-    if (await ask.confirm('Webhook einrichten (Erstattungen sofort wirksam)?')) {
+    if (await ask.confirm(t('confirm_webhook'))) {
       try {
         webhook = await api.createWebhook({
           url: `${origin}/monemee/webhook`,
           events: ['license.created', 'license.revoked', 'license.activated'],
           description: 'monemee CLI'
         });
-        ok(`Webhook: ${origin}/monemee/webhook`);
+        ok(t('webhook_ok', { url: `${origin}/monemee/webhook` }));
       } catch (err) {
-        warn(`Webhook nicht angelegt (${err.message}). Später erneut: npx monemee live – ohne Webhook greifen Erstattungen nach spätestens 5 Minuten.`);
+        warn(t('webhook_failed', { error: err.message }));
       }
     }
 
     console.log(`
-${bold('In die Umgebungsvariablen deiner Live-App eintragen')} ${dim('(nur jetzt sichtbar):')}
+${bold(t('live_env_title'))} ${dim(t('live_env_hint'))}
 
   MONEMEE_APP_SECRET=${live.secret}
   MONEMEE_PRODUCT_ID=${product.id}${webhook ? `\n  MONEMEE_WEBHOOK_SECRET=${webhook.signing_secret}` : ''}${base !== 'https://monemee.com' ? `\n  MONEMEE_BASE_URL=${base}` : ''}
 `);
     if (product.status !== 'active') {
-      warn(`Das Produkt ist noch ein Entwurf. Veröffentlichen: ${base}/products/${product.id}/edit`);
+      warn(t('product_draft', { url: `${base}/products/${product.id}/edit` }));
     }
-    info('Die lokale .env bleibt im Testmodus – so testest du weiter ohne Geld.');
+    info(t('local_env_test'));
   } finally {
     ask.close();
   }
@@ -353,38 +333,39 @@ async function cmdDoctor(flags) {
   let problems = 0;
   const bad = (msg) => { problems += 1; warn(msg); };
 
-  ok(`Projekt: ${project.framework}${project.react ? ' + React' : ''}, Login per ${project.login}`);
-  if (readCredentials(base)) ok(`CLI verbunden mit ${base}`);
-  else info('CLI nicht eingeloggt (nur für init/live nötig)');
+  ok(t('doctor_project', { framework: project.framework, react: project.react ? ' + React' : '', login: project.login }));
+  if (readCredentials(base)) ok(t('doctor_connected', { base }));
+  else info(t('doctor_not_logged_in'));
 
-  if (!fs.existsSync(file)) bad(`${rel(file)} fehlt – \`npx monemee init\``);
+  if (!fs.existsSync(file)) bad(t('doctor_env_missing', { file: rel(file) }));
   const secret = env.MONEMEE_APP_SECRET;
-  if (!secret) bad('MONEMEE_APP_SECRET fehlt');
-  else if (!/^mmapp_(test|live)_[0-9A-Za-z]{32}$/.test(secret)) bad('MONEMEE_APP_SECRET hat ein ungültiges Format');
+  if (!secret) bad(t('secret_missing'));
+  else if (!/^mmapp_(test|live)_[0-9A-Za-z]{32}$/.test(secret)) bad(t('secret_format'));
   else {
     try {
       const me = await appApi(env.MONEMEE_BASE_URL || base, secret).me();
-      ok(`Secret gültig: ${bold(me.title)} #${me.product_id} · ${me.mode === 'test' ? 'Testmodus' : 'LIVE'}`);
-      if (env.MONEMEE_PRODUCT_ID && Number(env.MONEMEE_PRODUCT_ID) !== Number(me.product_id)) bad('MONEMEE_PRODUCT_ID passt nicht zum Secret');
-      if (!me.license_enabled) bad('Lizenzschlüssel sind für das Produkt aus');
-      if (!me.return_url) info('Noch keine Rücksprung-URL (für Live nötig: `npx monemee live`)');
-      else ok(`Rücksprung-URL: ${me.return_url}`);
-      if (me.status !== 'active') info(`Produkt ist „${me.status}“ – echte Käufe erst nach dem Veröffentlichen`);
+      ok(t('secret_valid', { title: bold(me.title), id: me.product_id, mode: t(me.mode === 'test' ? 'mode_test' : 'mode_live') }));
+      if (env.MONEMEE_PRODUCT_ID && Number(env.MONEMEE_PRODUCT_ID) !== Number(me.product_id)) bad(t('product_id_mismatch'));
+      if (!me.license_enabled) bad(t('licenses_off'));
+      if (!me.return_url) info(t('no_return_url'));
+      else ok(t('return_url', { url: me.return_url }));
+      if (me.status !== 'active') info(t('product_status', { status: me.status }));
     } catch (err) {
-      bad(`Secret wird nicht akzeptiert: ${err.message}`);
+      bad(t('secret_rejected', { error: err.message }));
     }
   }
   const gitignore = path.join(project.serverDir, '.gitignore');
   const ignored = fs.existsSync(gitignore) && fs.readFileSync(gitignore, 'utf8').split('\n').some((l) => ['.env', '/.env'].includes(l.trim()));
   if (!ignored) {
-    bad('.env steht nicht in .gitignore – Secrets könnten im Repo landen');
+    bad(t('env_not_ignored'));
   }
-  console.log(problems ? `\n${problems} Problem(e) gefunden.` : `\n${bold('Alles in Ordnung.')}`);
+  console.log(problems ? `\n${t('problems_found', { count: problems })}` : `\n${bold(t('all_good'))}`);
   if (problems) process.exitCode = 1;
 }
 
 export async function main(argv) {
   const { command, flags } = parseArgs(argv);
+  if (typeof flags.lang === 'string') setLang(flags.lang);
   const commands = {
     init: cmdInit,
     'test-buy': cmdTestBuy,
@@ -399,8 +380,8 @@ export async function main(argv) {
     return;
   }
   if (flags.help || command === 'help' || !commands[command]) {
-    if (command !== 'help' && !flags.help) warn(`Unbekannter Befehl: ${command}`);
-    console.log(HELP);
+    if (command !== 'help' && !flags.help) warn(t('unknown_command', { command }));
+    console.log(help());
     return;
   }
   try {

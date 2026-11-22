@@ -33,6 +33,7 @@ npx monemee doctor       # checks your setup
 | `--ref <id>` | (`test-buy`) Test purchase for a specific user ID |
 | `--skip-install` | Print the install command instead of running it |
 | `--base-url <url>` | Use another Monemee instance, for example staging |
+| `--lang <en\|de>` | Output language. Defaults to `MONEMEE_LANG`, then your system locale (German if it starts with `de`, otherwise English) |
 
 Your login is stored in `~/.config/monemee/credentials.json` with permissions limited to your user. `npx monemee logout` deletes it, and you can revoke it in Monemee under *Settings > Connected apps*.
 

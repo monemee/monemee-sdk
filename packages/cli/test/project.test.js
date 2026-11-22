@@ -76,6 +76,8 @@ test('patchExpress (CommonJS): webhook vor express.json, routes nach Login und v
   assert.ok(at('app.use(monemee.routes())') > at('app.use(session())'));
   assert.ok(at('app.use(monemee.routes())') < at("app.get('/'"));
   assert.equal(patchExpress(file, 'cookie'), 'already');
+  assert.equal(fs.readFileSync(file, 'utf8'), src);
+  assert.doesNotMatch(src, /[äöüß]/);
 });
 
 test('patchExpress: keine Route erkennbar → manual, Datei unverändert', () => {
@@ -91,7 +93,8 @@ test('patchExpress (ESM) nutzt import', () => {
   assert.equal(patchExpress(file, 'token'), 'patched');
   const src = fs.readFileSync(file, 'utf8');
   assert.match(src, /import createMonemee from '@monemee\/node';/);
-  assert.match(src, /Token aus req\.headers\.authorization/);
+  assert.match(src, /verify the token from req\.headers\.authorization/);
+  assert.doesNotMatch(src, /[äöüß]/);
 });
 
 test('patchExpress: mehrdeutig → manual, Datei unverändert', () => {
@@ -114,7 +117,9 @@ test('scaffoldReactUpgrade mit Preis und Token-Hinweis, überschreibt nichts', (
   const dir = tmp({});
   const file = scaffoldReactUpgrade(dir, { login: 'token', price: 19 });
   const src = fs.readFileSync(file, 'utf8');
-  assert.match(src, /Jetzt kaufen – 19 €/);
+  assert.match(src, /Buy now – €19/);
+  assert.match(src, /Test purchase \(no charge\)/);
+  assert.doesNotMatch(src, /[äöüß]|Jetzt|Testkauf/);
   assert.match(src, /getIdToken/);
   assert.equal(scaffoldReactUpgrade(dir, { login: 'token', price: 19 }), null);
 });

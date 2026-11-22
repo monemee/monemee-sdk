@@ -2,6 +2,11 @@
 
 All notable changes to the Monemee SDK packages. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the packages use [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+- `monemee` CLI and `@monemee/react` components are available in English and German. The CLI picks the language from `--lang en|de`, `MONEMEE_LANG` or the system locale; `MonemeeProvider` takes `locale` and `messages` props. English is the default. Code that the CLI writes into your project is always English.
+
 ## [0.1.0] - unreleased
 
 ### Added
