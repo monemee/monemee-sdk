@@ -43,7 +43,18 @@ jobs:
               continue
             fi
             cp LICENSE "$dir/LICENSE"
-            npm publish "./$dir" --access public --provenance
+            # npm prüft neue Versionen erst ("staged"); ein zweiter Versuch derselben Version
+            # meldet dann 409. Das heißt: Version ist schon unterwegs, kein Fehler.
+            if ! out=$(npm publish "./$dir" --access public --provenance 2>&1); then
+              echo "$out"
+              if echo "$out" | grep -qiE "previously staged|cannot publish over"; then
+                echo "$name@$version ist bereits bei npm in Prüfung, weiter"
+              else
+                exit 1
+              fi
+            else
+              echo "$out" | tail -3
+            fi
           done
 
   pypi:
