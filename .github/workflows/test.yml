@@ -33,3 +33,19 @@ jobs:
       - run: pip install "cryptography>=41"
       - run: python -m unittest discover -s tests
         working-directory: packages/python
+  swift-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: swift --version
+      - run: swift test
+        working-directory: packages/swift
+  swift-linux:
+    runs-on: ubuntu-latest
+    container: swift:6.0
+    steps:
+      - uses: actions/checkout@v4
+      - run: swift test
+        working-directory: packages/swift
+      # Root manifest (install by repository URL) must point at the same sources
+      - run: swift package describe
