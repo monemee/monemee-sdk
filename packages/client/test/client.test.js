@@ -186,3 +186,13 @@ test('storageDir: Windows nutzt %APPDATA%, sonst XDG_CONFIG_HOME bzw. ~/.config'
   assert.equal(storageDir('monemee-42', { path: path.posix, home: '/home/a', platform: 'linux', env: { APPDATA: '/x' } }), '/home/a/.config/monemee-42');
   assert.equal(storageDir('monemee-42', { path: path.posix, home: '/home/a', platform: 'darwin', env: { XDG_CONFIG_HOME: '/cfg' } }), '/cfg/monemee-42');
 });
+
+test('gemeinsame Testvektoren (test-vectors/license-signatures.json) wie in Python und Swift', async () => {
+  const fs = await import('node:fs');
+  const vectors = JSON.parse(fs.readFileSync(new URL('../../../test-vectors/license-signatures.json', import.meta.url), 'utf8'));
+  for (const c of vectors.cases) {
+    const p = await verifySigned(c.signed, [vectors.public_key]);
+    assert.equal(p !== null, c.expect === 'valid', c.name);
+    if (p) assert.equal(p.product_id, vectors.product_id);
+  }
+});

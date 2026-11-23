@@ -214,5 +214,18 @@ class AppTests(Base):
             verify_webhook(body, sig, "whsec_x", now=t + 1000)
 
 
+class SharedVectorTests(unittest.TestCase):
+    """Gemeinsame Testvektoren (test-vectors/license-signatures.json) wie in JavaScript und Swift."""
+
+    def test_shared_vectors(self):
+        from monemee.license import verify_signed
+        vectors = json.loads((Path(__file__).resolve().parents[3] / "test-vectors" / "license-signatures.json").read_text("utf-8"))
+        for case in vectors["cases"]:
+            p = verify_signed(case["signed"], [vectors["public_key"]])
+            self.assertEqual(p is not None, case["expect"] == "valid", case["name"])
+            if p:
+                self.assertEqual(p["product_id"], vectors["product_id"])
+
+
 if __name__ == "__main__":
     unittest.main()
