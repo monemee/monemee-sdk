@@ -8,3 +8,8 @@ coverage/
 __pycache__/
 *.egg-info/
 dist/
+
+# Swift
+.build/
+.swiftpm/
+Package.resolved
