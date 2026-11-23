@@ -1,8 +1,8 @@
 ---
-title: License key validation for Electron, Tauri and Python apps
+title: License key validation for Electron, Tauri, Python and Swift apps
 description: Add license key activation and validation to desktop software, browser extensions and CLIs. Device limits, expiry and offline mode with Ed25519-signed responses.
 permalink: /license-keys/
-updated: 2026-11-22
+updated: 2026-11-23
 ---
 
 # License key validation for desktop and downloadable software
@@ -54,6 +54,21 @@ if lic.check().valid:                     # on every start
 ```
 
 Full walkthrough with a command-line interface: [Python license key guide]({{ '/guides/python-license-key/' | relative_url }}).
+
+## Swift: macOS, iOS and Linux apps
+
+Add the package `https://github.com/monemee/monemee-sdk.git` (product `Monemee`) with Swift Package Manager or Xcode.
+
+```swift
+import Monemee
+
+let license = try License(productId: 123)
+try await license.activate(keyFromUser)           // once
+let result = try await license.check()            // on every start
+if result.valid { unlockPro(plan: result.plan) }
+```
+
+Full walkthrough with a SwiftUI paywall: [Swift macOS license key guide]({{ '/guides/swift-macos-license-key/' | relative_url }}).
 
 ## Offline license verification
 

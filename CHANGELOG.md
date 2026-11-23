@@ -2,6 +2,13 @@
 
 All notable changes to the Monemee SDK packages. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the packages use [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+- `Monemee` Swift package ([packages/swift](packages/swift)): license keys for native apps on macOS 12+, iOS 15+ and Linux with Swift Package Manager (Swift 5.9+). `License` actor with `activate`, `check`, `deactivate`, `storedKey` and `deviceId`, the same offline rules as `monemee-client` (Ed25519 via CryptoKit or swift-crypto, `graceDays`, key rotation through `/.well-known/monemee-license-keys.json`), a stable hashed device ID from `IOPlatformUUID` or `/etc/machine-id`, and `Monemee.buyURL` / `Monemee.openBuyPage` for the checkout link. A `Package.swift` at the repository root makes the package installable by the repository URL. Planned as version 0.2.0.
+- Shared Ed25519 test vectors in `test-vectors/license-signatures.json`, checked by the JavaScript, Python and Swift tests.
+- Guide: [License key validation for a Swift macOS app](https://dev.monemee.com/guides/swift-macos-license-key/), and a SwiftUI example in [examples/swift-macos](examples/swift-macos).
+
 ## [0.1.1] - 2026-11-22
 
 ### Fixed

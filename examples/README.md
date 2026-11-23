@@ -10,5 +10,6 @@ Short, focused examples for each way of selling software with Monemee.
 | [electron](electron) | License key check in an Electron desktop app | `monemee-client` |
 | [chrome-extension](chrome-extension) | License key check in a browser extension | `monemee-client` |
 | [python-cli](python-cli) | License key check in a Python command-line tool | `monemee` (Python) |
+| [swift-macos](swift-macos) | License key paywall in a SwiftUI app for macOS | `Monemee` (Swift) |
 
 A complete, runnable app with login is in [templates/express-react](../templates/express-react).

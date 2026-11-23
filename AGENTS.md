@@ -5,7 +5,7 @@ Goal: sell the app in the current project through **Monemee**. Follow these step
 ## 1. Pick the use case
 
 - **Web app with its own login** (Express, Next.js, React SPA with a backend) → section A
-- **Downloadable software** (Electron, Tauri, CLI, Python tool, browser extension, plugin) → section B
+- **Downloadable software** (Electron, Tauri, CLI, Python tool, native Swift app for macOS/iOS, browser extension, plugin) → section B
 - Unsure? Ask the user whether buyers log in to the app.
 
 ## A. Web app
@@ -33,7 +33,7 @@ Goal: sell the app in the current project through **Monemee**. Follow these step
 ## B. Downloadable software
 
 1. Create a product with license keys enabled in Monemee (dashboard or MCP tool `create_software_product`) and note the `product_id`.
-2. JavaScript, Electron, Tauri, extensions: `monemee-client`. Python: `pip install "monemee[offline]"`.
+2. JavaScript, Electron, Tauri, extensions: `monemee-client`. Python: `pip install "monemee[offline]"`. Swift (macOS, iOS): Swift Package Manager `https://github.com/monemee/monemee-sdk.git`, product `Monemee`, then `let license = try License(productId: 123)`, `try await license.activate(key)` once, `try await license.check()` on every start.
    ```js
    const license = createLicense({ productId: 123 });
    await license.activate(keyFromUser);          // once

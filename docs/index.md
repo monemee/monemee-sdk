@@ -28,9 +28,10 @@ The CLI logs you in through the browser, creates the product, writes your `.env`
 | Web app with login (Express, Next.js, React) | [Add a paywall](web-apps/) | `monemee-node`, `monemee-react` |
 | Desktop or downloadable software (Electron, Tauri, extensions, CLIs) | [Validate license keys](license-keys/) | `monemee-client` |
 | Python tool or Flask, FastAPI, Django app | [Python](license-keys/#python) | `monemee` on PyPI |
+| Native macOS or iOS app (Swift, SwiftUI) | [Swift](license-keys/#swift-macos-ios-and-linux-apps) | `Monemee` (Swift Package Manager) |
 | Releases from GitHub | [Deliver updates](github-action/) | GitHub Action |
 
-Step-by-step [guides](guides/) cover [Next.js](guides/nextjs-paywall/), [Express and React](guides/express-react-paywall/), [Electron](guides/electron-license-key/), [Tauri](guides/tauri-license-key/), [Chrome extensions](guides/chrome-extension-license-key/), [Python](guides/python-license-key/) and [testing without paying](guides/test-purchase-flow/).
+Step-by-step [guides](guides/) cover [Next.js](guides/nextjs-paywall/), [Express and React](guides/express-react-paywall/), [Electron](guides/electron-license-key/), [Tauri](guides/tauri-license-key/), [Chrome extensions](guides/chrome-extension-license-key/), [Python](guides/python-license-key/), [Swift on macOS](guides/swift-macos-license-key/) and [testing without paying](guides/test-purchase-flow/).
 
 ## What Monemee handles for you
 

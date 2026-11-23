@@ -100,7 +100,17 @@ if license.check().valid:
     run_pro()
 ```
 
-`check()` verifies the signature of every response and keeps the last valid one. Without a network connection the license stays valid for `graceDays` (default: 7). See [monemee-client](packages/client) and the [Python package](packages/python).
+```swift
+// Native macOS and iOS apps: Swift Package Manager, product "Monemee"
+import Monemee
+
+let license = try License(productId: 123)
+if try await license.check().valid {
+    startPro()
+}
+```
+
+`check()` verifies the signature of every response and keeps the last valid one. Without a network connection the license stays valid for `graceDays` (default: 7). See [monemee-client](packages/client), the [Python package](packages/python) and the [Swift package](packages/swift).
 
 ## Ship new versions from GitHub Releases
 
@@ -139,6 +149,7 @@ Step-by-step guides on [dev.monemee.com](https://dev.monemee.com/guides/):
 - [Add a paywall to a Next.js App Router app](https://dev.monemee.com/guides/nextjs-paywall/)
 - [Add a paywall to an Express and React app](https://dev.monemee.com/guides/express-react-paywall/)
 - [License key validation for a Python CLI or desktop app](https://dev.monemee.com/guides/python-license-key/)
+- [License key validation for a Swift macOS app](https://dev.monemee.com/guides/swift-macos-license-key/)
 - [Add license key validation to a Tauri app](https://dev.monemee.com/guides/tauri-license-key/)
 - [Test the purchase flow without paying](https://dev.monemee.com/guides/test-purchase-flow/)
 
@@ -151,9 +162,10 @@ Step-by-step guides on [dev.monemee.com](https://dev.monemee.com/guides/):
 | [`monemee-react`](packages/react) | `npm i monemee-react` | Paywall components and the `useAccess` hook |
 | [`monemee-client`](packages/client) | `npm i monemee-client` | License keys in Electron, Tauri, extensions and CLIs |
 | [`monemee`](packages/python) (Python) | `pip install monemee` | License keys and web access in Python, Flask, FastAPI, Django |
+| [`Monemee`](packages/swift) (Swift) | `.package(url: "https://github.com/monemee/monemee-sdk.git", from: "0.2.0")` | License keys in native macOS, iOS and Linux apps |
 | [GitHub Action](action) | `uses: monemee/monemee-sdk/action@v1` | Upload release files as new product versions |
 
-Examples for Electron, Chrome extensions, Flask, Next.js and Python CLIs are in [examples](examples).
+Examples for Electron, Chrome extensions, Flask, Next.js, Python CLIs and a SwiftUI macOS app are in [examples](examples).
 
 ## How the purchase flow works
 
@@ -177,7 +189,7 @@ Report vulnerabilities as described in [SECURITY.md](SECURITY.md).
 ## FAQ
 
 ### How do I add license key validation to my app?
-Install `monemee-client` (JavaScript) or `monemee` (Python), call `activate(key)` once and `check()` on every start. Monemee handles key generation, delivery by email, device limits, expiry and refunds.
+Install `monemee-client` (JavaScript), `monemee` (Python) or the `Monemee` Swift package, call `activate(key)` once and `check()` on every start. Monemee handles key generation, delivery by email, device limits, expiry and refunds.
 
 ### Does license validation work offline?
 Yes. Every response is signed with Ed25519. The SDK stores the last valid response and accepts it without a connection for a configurable grace period, seven days by default. Tampered or foreign responses are rejected.
@@ -189,7 +201,7 @@ No. Purchases are bound to the user ID of your login. Your server asks `hasAcces
 `npx monemee init` creates a test secret. Run `npx monemee test-buy` or click the test purchase button in the paywall. Test licenses behave like real ones and are only visible in test mode.
 
 ### Which frameworks are supported?
-Express and Next.js (App Router) on the server, plus any runtime with Web-standard `Request`/`Response` such as Hono, Bun or Deno; React in the browser; Electron, Tauri, browser extensions and Node CLIs for downloadable software; Python with Flask, FastAPI and Django.
+Express and Next.js (App Router) on the server, plus any runtime with Web-standard `Request`/`Response` such as Hono, Bun or Deno; React in the browser; Electron, Tauri, browser extensions, Node CLIs and native Swift apps (macOS, iOS) for downloadable software; Python with Flask, FastAPI and Django.
 
 ### What does it cost?
 The SDK is free and MIT licensed. Monemee takes a fee per sale that drops from 29% to 9% as your revenue grows. There is no monthly fee. See [monemee.com](https://monemee.com).

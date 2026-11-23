@@ -99,7 +99,17 @@ if license.check().valid:
     run_pro()
 ```
 
-`check()` prüft die Signatur jeder Antwort und merkt sich die letzte gültige. Ohne Internet bleibt die Lizenz `graceDays` lang gültig (Standard: 7 Tage). Siehe [monemee-client](packages/client) und das [Python-Paket](packages/python).
+```swift
+// Native macOS- und iOS-Apps: Swift Package Manager, Produkt "Monemee"
+import Monemee
+
+let license = try License(productId: 123)
+if try await license.check().valid {
+    startPro()
+}
+```
+
+`check()` prüft die Signatur jeder Antwort und merkt sich die letzte gültige. Ohne Internet bleibt die Lizenz `graceDays` lang gültig (Standard: 7 Tage). Siehe [monemee-client](packages/client), das [Python-Paket](packages/python) und das [Swift-Paket](packages/swift).
 
 ## Neue Versionen aus GitHub Releases veröffentlichen
 
@@ -138,6 +148,7 @@ Schritt-für-Schritt-Anleitungen (auf Englisch) auf [dev.monemee.com](https://de
 - [Paywall in eine Next.js-App (App Router) einbauen](https://dev.monemee.com/guides/nextjs-paywall/)
 - [Paywall in eine Express- und React-App einbauen](https://dev.monemee.com/guides/express-react-paywall/)
 - [Lizenzschlüssel-Prüfung für Python-CLIs und Desktop-Tools](https://dev.monemee.com/guides/python-license-key/)
+- [Lizenzschlüssel-Prüfung in einer Swift-App für macOS](https://dev.monemee.com/guides/swift-macos-license-key/)
 - [Lizenzschlüssel-Prüfung in eine Tauri-App einbauen](https://dev.monemee.com/guides/tauri-license-key/)
 - [Kauf testen, ohne zu bezahlen](https://dev.monemee.com/guides/test-purchase-flow/)
 
@@ -150,9 +161,10 @@ Schritt-für-Schritt-Anleitungen (auf Englisch) auf [dev.monemee.com](https://de
 | [`monemee-react`](packages/react) | `npm i monemee-react` | Paywall-Komponenten und `useAccess`-Hook |
 | [`monemee-client`](packages/client) | `npm i monemee-client` | Lizenzschlüssel in Electron, Tauri, Erweiterungen und CLIs |
 | [`monemee`](packages/python) (Python) | `pip install monemee` | Lizenzschlüssel und Web-Zugang in Python, Flask, FastAPI, Django |
+| [`Monemee`](packages/swift) (Swift) | `.package(url: "https://github.com/monemee/monemee-sdk.git", from: "0.2.0")` | Lizenzschlüssel in nativen macOS-, iOS- und Linux-Apps |
 | [GitHub Action](action) | `uses: monemee/monemee-sdk/action@v1` | Release-Dateien als neue Produktversion hochladen |
 
-Beispiele für Electron, Chrome-Erweiterungen, Flask, Next.js und Python-CLIs findest du unter [examples](examples).
+Beispiele für Electron, Chrome-Erweiterungen, Flask, Next.js, Python-CLIs und eine SwiftUI-App für macOS findest du unter [examples](examples).
 
 ## So läuft ein Kauf ab
 
@@ -176,7 +188,7 @@ Sicherheitslücken meldest du wie in [SECURITY.md](SECURITY.md) beschrieben.
 ## Häufige Fragen
 
 ### Wie baue ich eine Lizenzschlüssel-Prüfung in meine App ein?
-Installiere `monemee-client` (JavaScript) oder `monemee` (Python), rufe einmal `activate(key)` auf und bei jedem Start `check()`. Schlüssel erzeugen, per E-Mail zustellen, Geräte-Limits, Laufzeiten und Erstattungen übernimmt Monemee.
+Installiere `monemee-client` (JavaScript), `monemee` (Python) oder das Swift-Paket `Monemee`, rufe einmal `activate(key)` auf und bei jedem Start `check()`. Schlüssel erzeugen, per E-Mail zustellen, Geräte-Limits, Laufzeiten und Erstattungen übernimmt Monemee.
 
 ### Funktioniert die Lizenzprüfung offline?
 Ja. Jede Antwort ist mit Ed25519 signiert. Das SDK speichert die letzte gültige Antwort und akzeptiert sie ohne Internet für eine einstellbare Zeit, standardmäßig sieben Tage. Manipulierte oder fremde Antworten werden abgelehnt.
@@ -188,7 +200,7 @@ Nein. Käufe sind an die Nutzer-ID deines Logins gebunden. Dein Server fragt `ha
 `npx monemee init` legt ein Test-Secret an. Starte dann `npx monemee test-buy` oder klicke in der Paywall auf den Testkauf. Testlizenzen verhalten sich wie echte und sind nur im Testmodus sichtbar.
 
 ### Welche Frameworks werden unterstützt?
-Express und Next.js (App Router) auf dem Server, dazu jede Runtime mit Web-Standard-`Request`/`Response` wie Hono, Bun oder Deno. Im Browser React, für Download-Software Electron, Tauri, Browser-Erweiterungen und Node-CLIs, außerdem Python mit Flask, FastAPI und Django.
+Express und Next.js (App Router) auf dem Server, dazu jede Runtime mit Web-Standard-`Request`/`Response` wie Hono, Bun oder Deno. Im Browser React, für Download-Software Electron, Tauri, Browser-Erweiterungen, Node-CLIs und native Swift-Apps (macOS, iOS), außerdem Python mit Flask, FastAPI und Django.
 
 ### Was kostet das?
 Das SDK ist kostenlos und steht unter MIT-Lizenz. Monemee nimmt eine Gebühr pro Verkauf, die mit deinem Umsatz von 29 % auf 9 % sinkt. Eine monatliche Grundgebühr gibt es nicht. Mehr auf [monemee.com](https://monemee.com).

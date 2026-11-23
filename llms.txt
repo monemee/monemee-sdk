@@ -1,11 +1,11 @@
 # Monemee SDK
 
-> Sell an app through Monemee: hosted checkout, unlocking buyers inside the app after payment, and license key validation with offline support. For web apps with login and for downloadable software (Electron, Tauri, browser extensions, CLIs, Python). MIT licensed.
+> Sell an app through Monemee: hosted checkout, unlocking buyers inside the app after payment, and license key validation with offline support. For web apps with login and for downloadable software (Electron, Tauri, browser extensions, CLIs, Python, native Swift apps). MIT licensed.
 
 - Setup: `npx monemee init` (browser login, product, .env, code integration, test mode)
 - Web app server: `monemee-node` - `createMonemee({ getRef })`, `app.use(monemee.routes())`, `monemee.requireAccess()`, `monemee.nextRoute()`, `monemee.guard(request)`
 - Web app frontend: `monemee-react` - `MonemeeProvider`, `AccessGate`, `BuyButton`, `LicenseForm`, `useAccess`
-- Downloadable software: `monemee-client` (JavaScript) and `monemee` (Python) - `activate`, `check`, offline via Ed25519-signed responses
+- Downloadable software: `monemee-client` (JavaScript), `monemee` (Python) and `Monemee` (Swift Package Manager, macOS/iOS/Linux) - `activate`, `check`, offline via Ed25519-signed responses
 - Releases: GitHub Action `monemee/monemee-sdk/action@v1`
 - HTTP API: `POST /api/v1/apps/{access,claim,test-claim}` (app secret), `POST /api/v1/licenses/{validate,activate,deactivate}` (public)
 - Buy link: `https://monemee.com/buy/<product_id>?ref=<user_id>`
@@ -19,6 +19,7 @@
 - [monemee-react](packages/react/README.md)
 - [monemee-client](packages/client/README.md)
 - [Python](packages/python/README.md)
+- [Swift](packages/swift/README.md)
 - [GitHub Action](action/README.md)
 - [OpenAPI](openapi.yaml)
 
@@ -29,5 +30,6 @@
 - [Add a paywall to a Next.js App Router app](https://dev.monemee.com/guides/nextjs-paywall/)
 - [Add a paywall to an Express and React app](https://dev.monemee.com/guides/express-react-paywall/)
 - [License key validation for a Python CLI or desktop app](https://dev.monemee.com/guides/python-license-key/)
+- [License key validation for a Swift macOS app](https://dev.monemee.com/guides/swift-macos-license-key/)
 - [Add license key validation to a Tauri app](https://dev.monemee.com/guides/tauri-license-key/)
 - [Test the purchase flow without paying](https://dev.monemee.com/guides/test-purchase-flow/)

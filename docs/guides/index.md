@@ -1,9 +1,9 @@
 ---
 title: "Guides: license keys and paywalls step by step"
-description: Step-by-step guides for selling software with Monemee. License keys in Electron, Tauri, Chrome extensions and Python, paywalls in Next.js and Express.
+description: Step-by-step guides for selling software with Monemee. License keys in Electron, Tauri, Chrome extensions, Python and Swift, paywalls in Next.js and Express.
 permalink: /guides/
-updated: 2026-11-22
-last_modified_at: 2026-11-22
+updated: 2026-11-23
+last_modified_at: 2026-11-23
 ---
 
 # Guides
@@ -25,6 +25,7 @@ last_modified_at: 2026-11-22
 | [Add license key validation to a Tauri app]({{ '/guides/tauri-license-key/' | relative_url }}) | `monemee-client` |
 | [Sell a Chrome extension with license keys]({{ '/guides/chrome-extension-license-key/' | relative_url }}) | `monemee-client` |
 | [License key validation for a Python CLI or desktop app]({{ '/guides/python-license-key/' | relative_url }}) | `monemee` (PyPI) |
+| [License key validation for a Swift macOS app]({{ '/guides/swift-macos-license-key/' | relative_url }}) | `Monemee` (Swift) |
 
 ## Testing and going live
 

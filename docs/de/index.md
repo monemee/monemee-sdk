@@ -46,7 +46,7 @@ await license.activate('MM-XXXX-XXXX-XXXX-XXXX');
 const { valid } = await license.check();
 ```
 
-Python: `pip install "monemee[offline]"`. Ausführlich: [Lizenzschlüssel](/license-keys/) (englisch).
+Python: `pip install "monemee[offline]"`. Swift (macOS, iOS): Paket `https://github.com/monemee/monemee-sdk.git`, Produkt `Monemee`. Ausführlich: [Lizenzschlüssel](/license-keys/) (englisch).
 
 ## Neue Versionen automatisch ausliefern
 

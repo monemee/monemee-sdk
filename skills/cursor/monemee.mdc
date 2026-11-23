@@ -7,6 +7,6 @@ alwaysApply: false
 When the user wants to sell the app with Monemee or add a paywall or license check:
 
 - Web app with login: run `npx monemee init` (the user confirms the login in the browser), then set `getRef` to the real user ID. Put `monemee.webhook()` before `express.json()` and `monemee.routes()` after the login. Protect routes with `monemee.requireAccess()` or `<AccessGate fallback={<BuyButton />}>`.
-- Downloadable software: `monemee-client` (`createLicense({ productId })`, `activate`, `check`) or Python `monemee.License`.
+- Downloadable software: `monemee-client` (`createLicense({ productId })`, `activate`, `check`) Python `monemee.License`, or Swift `License(productId:)` from the `Monemee` package (Swift Package Manager).
 - Secrets only in `.env`, and `.env` in `.gitignore`. Go live only when asked (`npx monemee live`).
 - Docs: https://github.com/monemee/monemee-sdk/blob/main/AGENTS.md
