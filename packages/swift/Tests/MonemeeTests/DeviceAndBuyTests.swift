@@ -41,7 +41,11 @@ final class DeviceIdentifierTests: XCTestCase {
     #if os(Linux) || os(macOS)
     func testThisMachineHasAnIdentifier() throws {
         // macOS: IOPlatformUUID, Linux: /etc/machine-id (present on systemd systems and most CI images).
-        let hasMachineId = FileManager.default.fileExists(atPath: "/etc/machine-id") || FileManager.default.fileExists(atPath: "/var/lib/dbus/machine-id")
+        // Containers often ship an empty /etc/machine-id, so only count files with content.
+        let hasMachineId = ["/etc/machine-id", "/var/lib/dbus/machine-id"].contains { path in
+            guard let text = try? String(contentsOfFile: path, encoding: .utf8) else { return false }
+            return !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        }
         #if os(Linux)
         try XCTSkipUnless(hasMachineId, "no machine-id on this system")
         #endif
